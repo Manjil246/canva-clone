@@ -43,19 +43,6 @@ const Shapes = ({ canvas }) => {
     }
   };
 
-  const addText = () => {
-    if (canvas) {
-      const text = new Text("Edit me", {
-        left: 100,
-        top: 100,
-        fill: "black",
-        fontSize: 24,
-      });
-
-      canvas.add(text);
-    }
-  };
-
   return (
     <div className="flex flex-col">
       <button
@@ -75,12 +62,6 @@ const Shapes = ({ canvas }) => {
         onClick={addTriangle}
       >
         Add Triangle
-      </button>
-      <button
-        className="px-4 py-2 bg-green-700 text-white rounded-2xl border border-white m-5"
-        onClick={addText}
-      >
-        Add Text
       </button>
     </div>
   );
