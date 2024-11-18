@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import * as fabric from "fabric";
+import axios from "axios";
+import WebFont from "webfontloader";
 
 const Text = ({ canvas }) => {
   const [isTextSelected, setIsTextSelected] = useState(false);
-  const [textValue, setTextValue] = useState("Sample Text");
+  const [textValue, setTextValue] = useState("Normal Text");
   const [fontSize, setFontSize] = useState(20);
   const [fontWeight, setFontWeight] = useState("normal");
   const [fontStyle, setFontStyle] = useState("normal");
@@ -12,6 +14,25 @@ const Text = ({ canvas }) => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
   const [listType, setListType] = useState("");
+  const [fonts, setFonts] = useState([]);
+
+  useEffect(() => {
+    const fetchFonts = async () => {
+      try {
+        // Example: Fetch Google Fonts or use a static list
+        const response = await axios.get(
+          "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyChVtk1O-m1sCVqnSBVrLBXh89H-bQCvvw"
+        );
+
+        const fontList = response.data.items.map((font) => font.family);
+        setFonts([...fontList]);
+      } catch (error) {
+        console.error("Error fetching fonts:", error);
+      }
+    };
+
+    fetchFonts();
+  }, []);
 
   useEffect(() => {
     if (!canvas) return;
@@ -60,21 +81,18 @@ const Text = ({ canvas }) => {
 
   const addText = (type) => {
     if (canvas) {
-      const text = new fabric.Textbox(
-        type === "Heading" ? "Heading Text" : "Normal Text",
-        {
-          left: 100,
-          top: 100,
-          fontSize: type === "Heading" ? 30 : 20,
-          fontWeight: type === "Heading" ? "bold" : "normal",
-          fontStyle,
-          underline: textDecoration === "underline",
-          lineHeight,
-          fontFamily,
-          fill: textColor,
-          editable: true,
-        }
-      );
+      const text = new fabric.Textbox("Normal Text", {
+        left: 100,
+        top: 100,
+        fontSize: 20,
+        fontWeight: "normal",
+        fontStyle,
+        underline: textDecoration === "underline",
+        lineHeight,
+        fontFamily,
+        fill: textColor,
+        editable: true,
+      });
       canvas.add(text);
       canvas.setActiveObject(text);
       if (listType) {
@@ -86,8 +104,25 @@ const Text = ({ canvas }) => {
   const updateActiveText = (property, value) => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === "textbox") {
-      activeObject.set(property, value);
-      canvas.renderAll();
+      if (property === "fontFamily") {
+        // Load the font using Web Font Loader
+        WebFont.load({
+          google: {
+            families: [value], // Font family to load
+          },
+          active: () => {
+            // Font is loaded, apply it to the canvas object
+            activeObject.set(property, value);
+            canvas.renderAll();
+          },
+          inactive: () => {
+            console.error(`Failed to load the font: ${value}`);
+          },
+        });
+      } else {
+        activeObject.set(property, value);
+        canvas.renderAll();
+      }
     }
   };
 
@@ -134,19 +169,13 @@ const Text = ({ canvas }) => {
     <div className="p-4 border border-gray-300 rounded">
       <h3 className="text-lg font-semibold mb-2">Add and Edit Text</h3>
 
-      {/* Add Text/Heading Buttons */}
+      {/* Add Text Buttons */}
       <div className="mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-lg mr-2"
           onClick={() => addText("Normal")}
         >
           Add Text
-        </button>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          onClick={() => addText("Heading")}
-        >
-          Add Heading
         </button>
       </div>
 
@@ -166,23 +195,26 @@ const Text = ({ canvas }) => {
             />
           </label>
 
-          <label className="block mb-2">
-            Font Family:
-            <select
-              value={fontFamily}
-              onChange={(e) => {
-                setFontFamily(e.target.value);
-                updateActiveText("fontFamily", e.target.value);
-              }}
-              className="ml-2 border border-gray-300 rounded px-2 py-1"
-            >
-              <option value="Arial">Arial</option>
-              <option value="Times New Roman">Times New Roman</option>
-              <option value="Courier New">Courier New</option>
-              <option value="Verdana">Verdana</option>
-            </select>
-          </label>
-
+          {/* Font Selection */}
+          {isTextSelected && (
+            <label className="block mb-2">
+              Font Family:
+              <select
+                value={fontFamily}
+                onChange={(e) => {
+                  setFontFamily(e.target.value);
+                  updateActiveText("fontFamily", e.target.value);
+                }}
+                className="ml-2 border border-gray-300 rounded px-2 py-1"
+              >
+                {fonts.map((font, index) => (
+                  <option key={index} value={font}>
+                    {font}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="block mb-2">
             Font Size:
             <input
