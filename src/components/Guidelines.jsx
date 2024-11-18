@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import * as fabric from "fabric";
 
 const Guidelines = ({ canvas, gridSize = 20, snapDistance = 10 }) => {
-  const [areGuidelinesEnabled, setAreGuidelinesEnabled] = useState(true);
+  const [areGuidelinesEnabled, setAreGuidelinesEnabled] = useState(false);
 
-  useEffect(() => {
+  const enableGuidelines = () => {
     if (!canvas) return;
 
     const width = canvas.getWidth();
     const height = canvas.getHeight();
 
     // Create guidelines
-    const verticalLines = [];
+    const verticalLines = [];z
     const horizontalLines = [];
 
     for (let i = 0; i < width; i += gridSize) {
@@ -103,42 +103,33 @@ const Guidelines = ({ canvas, gridSize = 20, snapDistance = 10 }) => {
       canvas.renderAll();
     };
 
-    // Listen for selection changes
-    const handleSelectionChanged = () => {
-      const selectedObject = canvas.getActiveObject();
-      if (!selectedObject) {
-        hideGuidelines();
-      }
-    };
-
-    // Enable or disable guidelines based on object selection and move events
-    if (areGuidelinesEnabled) {
+    if (!areGuidelinesEnabled) {
       canvas.on("object:moving", handleObjectMoving);
       canvas.on("object:scaling", handleObjectScaling);
       canvas.on("object:rotating", handleObjectRotating);
-      canvas.on("object:selected", handleSelectionChanged);
-      canvas.on("object:deselected", handleSelectionChanged);
       canvas.on("mouse:up", hideGuidelines);
+
+      setAreGuidelinesEnabled(true);
     } else {
       canvas.off("object:moving", handleObjectMoving);
       canvas.off("object:scaling", handleObjectScaling);
       canvas.off("object:rotating", handleObjectRotating);
-      canvas.off("object:selected", handleSelectionChanged);
-      canvas.off("object:deselected", handleSelectionChanged);
       canvas.off("mouse:up", hideGuidelines);
 
       verticalLines.forEach((line) => canvas.remove(line));
       horizontalLines.forEach((line) => canvas.remove(line));
+      setAreGuidelinesEnabled(false);
     }
+  };
 
-    // Cleanup on unmount
-    return () => {
-      verticalLines.forEach((line) => canvas.remove(line));
-      horizontalLines.forEach((line) => canvas.remove(line));
-    };
-  }, [canvas, areGuidelinesEnabled]);
-
-  return null;
+  return (
+    <button
+      className="p-2 mt-2 bg-green-500 text-white rounded hover:bg-green-700"
+      onClick={enableGuidelines}
+    >
+      {areGuidelinesEnabled ? "Disable Guidelines" : "Enable Guidelines"}
+    </button>
+  );
 };
 
 export default Guidelines;
