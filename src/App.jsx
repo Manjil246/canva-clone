@@ -9,6 +9,7 @@ import Line from "./components/Line";
 import Guidelines from "./components/Guidelines";
 import AspectRatio from "./components/AspectRatio";
 import Pages from "./components/Pages";
+import SaveCanvas from "./components/SaveCanvas";
 
 function App() {
   const canvasRef = useRef(null);
@@ -55,12 +56,12 @@ function App() {
   }, []);
 
   return (
-    <div className="flex flex-col">
+    <>
       <div
-        className="font-serif text-center flex justify-between items-center px-24 py-4 bg-gray-500 min-h-screen h-full"
+        className="font-serif text-center flex flex-col w-screen space-y-10  items-center px-24 py-4 bg-gray-500 min-h-screen h-full"
         style={{ backgroundColor: "#B2CCFF" }}
       >
-        <div className="flex">
+        <div className="flex justify-between w-full">
           <Shapes canvas={canvas} />
           <canvas id="canvas" ref={canvasRef}></canvas>
           <div>
@@ -70,11 +71,12 @@ function App() {
             <Line canvas={canvas} />
             <Guidelines canvas={canvas} />
             <AspectRatio canvas={canvas} />
+            <SaveCanvas canvas={canvas} />
           </div>
         </div>
+        <Pages canvas={canvas} />
       </div>
-      <Pages canvas={canvas} />
-    </div>
+    </>
   );
 }
 

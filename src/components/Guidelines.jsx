@@ -11,7 +11,7 @@ const Guidelines = ({ canvas, gridSize = 20, snapDistance = 10 }) => {
     const height = canvas.getHeight();
 
     // Create guidelines
-    const verticalLines = [];z
+    const verticalLines = [];
     const horizontalLines = [];
 
     for (let i = 0; i < width; i += gridSize) {

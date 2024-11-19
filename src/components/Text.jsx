@@ -13,7 +13,6 @@ const Text = ({ canvas }) => {
   const [lineHeight, setLineHeight] = useState(1.2);
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
-  const [listType, setListType] = useState("");
   const [fonts, setFonts] = useState([]);
 
   useEffect(() => {
@@ -136,26 +135,6 @@ const Text = ({ canvas }) => {
         }
         if (listType === "number") {
           return line.match(/^\d+\./) ? line : `${index + 1}. ${line.trim()}`;
-        }
-        return line;
-      });
-
-      activeObject.text = updatedLines.join("\n");
-      canvas.renderAll();
-    }
-  };
-
-  const enableListType = (type) => {
-    setListType((prev) => (prev === type ? "" : type));
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === "textbox") {
-      const textLines = activeObject.text.split("\n");
-      const updatedLines = textLines.map((line, index) => {
-        if (type === "bullet") {
-          return `• ${line.trim()}`;
-        }
-        if (type === "number") {
-          return `${index + 1}. ${line.trim()}`;
         }
         return line;
       });
@@ -293,37 +272,6 @@ const Text = ({ canvas }) => {
               className="ml-2 border border-gray-300 rounded px-2 py-1"
             />
           </label>
-
-          {isTextSelected && (
-            <>
-              <button
-                className={`px-4 py-2 border rounded mr-2 ${
-                  listType === "bullet" ? "bg-gray-300" : ""
-                }`}
-                onClick={() => enableListType("bullet")}
-              >
-                Bullets
-              </button>
-              <button
-                className={`px-4 py-2 border rounded mr-2 ${
-                  listType === "number" ? "bg-gray-300" : ""
-                }`}
-                onClick={() => enableListType("number")}
-              >
-                Numbering
-              </button>
-
-              <label className="block mb-2">
-                Text Color:
-                <input
-                  type="color"
-                  value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
-                  className="ml-2 border border-gray-300 rounded px-2 py-1"
-                />
-              </label>
-            </>
-          )}
         </>
       )}
     </div>
