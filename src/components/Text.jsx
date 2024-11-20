@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import * as fabric from "fabric";
 import axios from "axios";
 import WebFont from "webfontloader";
+import TextWithEdits from "./TextWithEdits";
 
 const Text = ({ canvas }) => {
   const [isTextSelected, setIsTextSelected] = useState(false);
@@ -13,7 +14,13 @@ const Text = ({ canvas }) => {
   const [lineHeight, setLineHeight] = useState(1.2);
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
+  const [textAlign, setTextAlign] = useState("left");
   const [fonts, setFonts] = useState([]);
+  const [listStyle, setListStyle] = useState("none");
+  const [previousListStyle, setPreviousListStyle] = useState("none");
+  const [edits, setEdits] = useState([]);
+  const [rephraseOptions, setRephraseOptions] = useState([]);
 
   useEffect(() => {
     const fetchFonts = async () => {
@@ -24,7 +31,7 @@ const Text = ({ canvas }) => {
         );
 
         const fontList = response.data.items.map((font) => font.family);
-        setFonts([...fontList]);
+        setFonts(fontList);
       } catch (error) {
         console.error("Error fetching fonts:", error);
       }
@@ -38,6 +45,7 @@ const Text = ({ canvas }) => {
 
     const handleSelection = () => {
       const activeObject = canvas.getActiveObject();
+      if (activeObject.type === "textbox") handleModified();
       setIsTextSelected(activeObject && activeObject.type === "textbox");
     };
 
@@ -69,16 +77,18 @@ const Text = ({ canvas }) => {
     canvas.on("selection:updated", handleSelection);
     canvas.on("selection:cleared", () => setIsTextSelected(false));
     canvas.on("object:modified", handleModified);
+    canvas.on("text:changed", handleModified);
 
     return () => {
       canvas.off("selection:created", handleSelection);
       canvas.off("selection:updated", handleSelection);
       canvas.off("selection:cleared");
       canvas.off("object:modified", handleModified);
+      canvas.on("text:changed", handleModified);
     };
   }, [canvas]);
 
-  const addText = (type) => {
+  const addText = () => {
     if (canvas) {
       const text = new fabric.Textbox("Normal Text", {
         left: 100,
@@ -91,12 +101,11 @@ const Text = ({ canvas }) => {
         fontFamily,
         fill: textColor,
         editable: true,
+        textAlign: "left",
+        backgroundColor: "#ffffff",
       });
       canvas.add(text);
       canvas.setActiveObject(text);
-      if (listType) {
-        text.on("changed", handleListBehavior);
-      }
     }
   };
 
@@ -125,24 +134,87 @@ const Text = ({ canvas }) => {
     }
   };
 
-  const handleListBehavior = (e) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === "textbox") {
-      const textLines = activeObject.text.split("\n");
-      const updatedLines = textLines.map((line, index) => {
-        if (listType === "bullet") {
-          return line.startsWith("• ") ? line : `• ${line.trim()}`;
-        }
-        if (listType === "number") {
-          return line.match(/^\d+\./) ? line : `${index + 1}. ${line.trim()}`;
-        }
-        return line;
-      });
-
-      activeObject.text = updatedLines.join("\n");
-      canvas.renderAll();
+  const formatListText = (text, style) => {
+    let lines = text.split("\n");
+    if (style === "bullets") {
+      if (previousListStyle === "bullets") return text;
+      if (previousListStyle === "numbered")
+        lines = lines.map((line) => line.replace(/^[•\d.]+\s/, ""));
+      return lines.map((line) => `• ${line}`).join("\n");
+    } else if (style === "numbered") {
+      if (previousListStyle === "numbered") return text;
+      if (previousListStyle === "bullets")
+        lines = lines.map((line) => line.replace(/^[•\d.]+\s/, ""));
+      return lines.map((line, index) => `${index + 1}. ${line}`).join("\n");
+    } else {
+      return lines.map((line) => line.replace(/^[•\d.]+\s/, "")).join("\n");
     }
   };
+
+  useEffect(() => {
+    if (canvas) {
+      const activeObject = canvas.getActiveObject();
+      if (activeObject && activeObject.type === "textbox") {
+        const formattedText = formatListText(
+          activeObject.text || "",
+          listStyle
+        );
+        activeObject.set("text", formattedText);
+        canvas.renderAll();
+      }
+    }
+  }, [listStyle]);
+
+  const handleListStyleChange = (style) => {
+    setPreviousListStyle(listStyle);
+    setListStyle(style);
+  };
+
+  const checkGrammar = async (text) => {
+    try {
+      const response = await axios.post(
+        "https://api.sapling.ai/api/v1/edits", // Sapling API endpoint
+        {
+          key: "IQD4TFNJFM0OSRVE9KRIEDVPBE3WK76U",
+          session_id: "test session",
+          text,
+          advanced_edits: { advanced_edits: true },
+        }
+      );
+      const { data } = response;
+      setEdits(data.edits);
+      console.log(JSON.stringify(data, null, 2));
+    } catch (err) {
+      const { msg } = err.response.data;
+      console.error({ err: msg });
+    }
+  };
+  const checkParaphase = async (text) => {
+    try {
+      const response = await axios.post(
+        "https://api.sapling.ai/api/v1/paraphrase", // Sapling API endpoint
+        {
+          key: "IQD4TFNJFM0OSRVE9KRIEDVPBE3WK76U",
+          session_id: "test session",
+          text,
+          advanced_edits: { advanced_edits: true },
+        }
+      );
+      const { data } = response;
+      setRephraseOptions(data.results);
+      console.log(JSON.stringify(data, null, 2));
+    } catch (err) {
+      const { msg } = err.response.data;
+      console.error({ err: msg });
+    }
+  };
+
+  useEffect(() => {
+    if (textValue) {
+      checkGrammar(textValue);
+      checkParaphase(textValue);
+    }
+  }, [textValue]);
 
   return (
     <div className="p-4 border border-gray-300 rounded">
@@ -152,7 +224,7 @@ const Text = ({ canvas }) => {
       <div className="mb-4">
         <button
           className="px-4 py-2 bg-blue-600 text-white rounded-lg mr-2"
-          onClick={() => addText("Normal")}
+          onClick={addText}
         >
           Add Text
         </button>
@@ -272,6 +344,57 @@ const Text = ({ canvas }) => {
               className="ml-2 border border-gray-300 rounded px-2 py-1"
             />
           </label>
+          <label className="block mb-2">
+            Background Color:
+            <input
+              type="color"
+              value={backgroundColor}
+              onChange={(e) => {
+                setBackgroundColor(e.target.value);
+                updateActiveText("backgroundColor", e.target.value);
+              }}
+              className="ml-2 border border-gray-300 rounded px-2 py-1"
+            />
+          </label>
+          <label className="block mb-2">
+            Text Alignment:
+            <select
+              value={textAlign}
+              onChange={(e) => {
+                setTextAlign(e.target.value);
+                updateActiveText("textAlign", e.target.value);
+              }}
+            >
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </label>
+          <label className="block mb-2">
+            List Style:
+            <select
+              value={listStyle}
+              onChange={(e) => handleListStyleChange(e.target.value)}
+              className="ml-2 border border-gray-300 rounded px-2 py-1"
+            >
+              <option value="none">None</option>
+              <option value="bullets">Bullets</option>
+              <option value="numbered">Numbered</option>
+            </select>
+          </label>
+          <TextWithEdits text={textValue} edits={edits} />
+          {rephraseOptions && rephraseOptions.length > 0 && (
+            <>
+              <div className="text-lg font-bold">Select a rephrase option:</div>
+              <ul type="list-decimal pl-5 space-y-2">
+                {rephraseOptions.map((option, index) => (
+                  <li key={index} className="text-left text-lg">
+                    + {option.replacement}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </>
       )}
     </div>
