@@ -1,5 +1,5 @@
 import React from "react";
-import { Rect, Circle, Triangle, Text } from "fabric";
+import { Rect, Circle, Triangle } from "fabric";
 
 const Shapes = ({ canvas }) => {
   const addRectangle = () => {
