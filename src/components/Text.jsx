@@ -24,8 +24,14 @@ const Text = ({ canvas }) => {
   const [rephraseOptions, setRephraseOptions] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [grammarlyDialog, setGrammarlyDialog] = useState(false);
+  const [hasBackground, setHasBackground] = useState(true);
 
   const handleGrammarlyClose = () => setGrammarlyDialog(false);
+
+  const handleBlur = (e) => {
+    setTextValue(e.target.value); // Update state when the user leaves the textarea
+    updateActiveText("text", e.target.value); // Send the value to the parent or canvas
+  };
 
   const handleCloseDialog = () => setDialog(false);
   const editableDivRef = useRef(null);
@@ -96,7 +102,7 @@ const Text = ({ canvas }) => {
     return () => {
       canvas.off("selection:created", handleSelection);
       canvas.off("selection:updated", handleSelection);
-      canvas.off("selection:cleared");
+      canvas.off("selection:cleared", () => setIsTextSelected(false));
       canvas.off("object:modified", handleModified);
       canvas.on("text:changed", handleModified);
     };
@@ -116,7 +122,7 @@ const Text = ({ canvas }) => {
         fill: textColor,
         editable: true,
         textAlign: "left",
-        backgroundColor: "#ffffff",
+        backgroundColor: hasBackground ? backgroundColor : null,
       });
       canvas.add(text);
       canvas.setActiveObject(text);
@@ -147,6 +153,16 @@ const Text = ({ canvas }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (canvas) {
+      if (hasBackground) {
+        updateActiveText("backgroundColor", null);
+      } else {
+        updateActiveText("backgroundColor", backgroundColor);
+      }
+    }
+  }, [hasBackground]);
 
   const formatListText = (text, style) => {
     let lines = text.split("\n");
@@ -197,7 +213,7 @@ const Text = ({ canvas }) => {
       );
       const { data } = response;
       setEdits(data.edits);
-      console.log(JSON.stringify(data, null, 2));
+      // console.log(JSON.stringify(data, null, 2));
     } catch (err) {
       const { msg } = err.response.data;
       console.error({ err: msg });
@@ -216,7 +232,7 @@ const Text = ({ canvas }) => {
       );
       const { data } = response;
       setRephraseOptions(data.results);
-      console.log(JSON.stringify(data, null, 2));
+      // console.log(JSON.stringify(data, null, 2));
     } catch (err) {
       const { msg } = err.response.data;
       console.error({ err: msg });
@@ -231,7 +247,7 @@ const Text = ({ canvas }) => {
   }, [textValue]);
 
   return (
-    <div className="p-4 border border-gray-300 rounded">
+    <div className="p-4 border border-gray-300 rounded text-xs">
       <h3 className="text-lg font-semibold mb-2">Add and Edit Text</h3>
 
       {/* Add Text Buttons */}
@@ -246,16 +262,16 @@ const Text = ({ canvas }) => {
 
       {/* Formatting Options (Only visible if text is selected) */}
       {isTextSelected && (
-        <>
+        <div className="flex flex-col">
           <label className="block mb-2">
             Text:
-            <input
-              type="text"
-              value={textValue}
+            <textarea
+              contentEditable="true"
+              defaultValue={textValue}
               onChange={(e) => {
                 setTextValue(e.target.value);
-                updateActiveText("text", e.target.value);
               }}
+              onBlur={handleBlur}
               className="ml-2 border border-gray-300 rounded px-2 py-1"
             />
           </label>
@@ -396,7 +412,13 @@ const Text = ({ canvas }) => {
               <option value="numbered">Numbered</option>
             </select>
           </label>
-        </>
+          <button
+            onClick={() => setHasBackground(!hasBackground)}
+            className="p-2 bg-blue-600 text-white rounded-lg mb-2 w-fit m-auto"
+          >
+            Toggle Background
+          </button>
+        </div>
       )}
 
       {canvas &&

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const AspectRatio = ({ canvas }) => {
-  const [width, setWidth] = useState(1300);
-  const [height, setHeight] = useState(1100);
+  const [width, setWidth] = useState(500);
+  const [height, setHeight] = useState(500);
 
   const handleAspectRatioChange = () => {
     if (canvas) {
@@ -10,6 +10,14 @@ const AspectRatio = ({ canvas }) => {
       canvas.renderAll();
     }
   };
+
+  useEffect(() => {
+    if (canvas) {
+      setHeight(canvas.height);
+      setWidth(canvas.width);
+      canvas.renderAll();
+    }
+  }, [canvas]);
 
   return (
     <div className="aspect-ratio-control">

@@ -31,19 +31,29 @@ const Image = ({ canvas }) => {
   const addImageToCanvas = (src) => {
     const imageElement = document.createElement("img");
     imageElement.src = src;
-    imageElement.width = Math.min(canvas.width, canvas.height) / 2;
     imageElement.onload = () => {
+      const width = 200;
+      const height =
+        (imageElement.naturalHeight / imageElement.naturalWidth) * width;
       let image = new fabric.Image(imageElement, {
-        left: canvas.width / 2,
-        top: canvas.height / 2,
+        left: 200,
+        top: 200,
         originX: "center",
         originY: "center",
+      });
+      image.set({
+        scaleX: width / imageElement.naturalWidth,
+        scaleY: height / imageElement.naturalHeight,
       });
       canvas.add(image);
       canvas.centerObject(image);
       canvas.setActiveObject(image);
       canvas.renderAll();
     };
+    imageElement.onerror = () => {
+      console.error("Failed to load image:", src);
+    };
+    fileInputRef.current.value = "";
   };
 
   const handleFileUpload = (event) => {
