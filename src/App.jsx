@@ -19,8 +19,8 @@ function App() {
   useEffect(() => {
     if (canvasRef.current) {
       const initCanvas = new Canvas(canvasRef.current, {
-        width: 1300,
-        height: 1100,
+        width: 500,
+        height: 500,
       });
 
       initCanvas.backgroundColor = "white";
@@ -63,7 +63,9 @@ function App() {
       >
         <div className="flex justify-between w-full">
           <Shapes canvas={canvas} />
-          <canvas id="canvas" ref={canvasRef}></canvas>
+          <div className="mt-20">
+            <canvas id="canvas" ref={canvasRef}></canvas>
+          </div>
           <div>
             <Settings canvas={canvas} />
             <Image canvas={canvas} />

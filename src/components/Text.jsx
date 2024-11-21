@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as fabric from "fabric";
 import axios from "axios";
 import WebFont from "webfontloader";
 import TextWithEdits from "./TextWithEdits";
+import Dialog from "../utils/Dialog";
 
 const Text = ({ canvas }) => {
   const [isTextSelected, setIsTextSelected] = useState(false);
@@ -21,6 +22,19 @@ const Text = ({ canvas }) => {
   const [previousListStyle, setPreviousListStyle] = useState("none");
   const [edits, setEdits] = useState([]);
   const [rephraseOptions, setRephraseOptions] = useState([]);
+  const [dialog, setDialog] = useState(false);
+  const [grammarlyDialog, setGrammarlyDialog] = useState(false);
+
+  const handleGrammarlyClose = () => setGrammarlyDialog(false);
+
+  const handleCloseDialog = () => setDialog(false);
+  const editableDivRef = useRef(null);
+
+  useEffect(() => {
+    if (grammarlyDialog && editableDivRef.current) {
+      editableDivRef.current.focus(); // Programmatically focus the editable div
+    }
+  }, [grammarlyDialog]);
 
   useEffect(() => {
     const fetchFonts = async () => {
@@ -382,20 +396,62 @@ const Text = ({ canvas }) => {
               <option value="numbered">Numbered</option>
             </select>
           </label>
-          <TextWithEdits text={textValue} edits={edits} />
-          {rephraseOptions && rephraseOptions.length > 0 && (
-            <>
-              <div className="text-lg font-bold">Select a rephrase option:</div>
-              <ul type="list-decimal pl-5 space-y-2">
-                {rephraseOptions.map((option, index) => (
-                  <li key={index} className="text-left text-lg">
-                    + {option.replacement}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
         </>
+      )}
+
+      {canvas &&
+        canvas.getActiveObject() &&
+        canvas.getActiveObject().type === "textbox" && (
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg mb-2"
+            onClick={() => setDialog(true)}
+          >
+            Apply Sapling Edits
+          </button>
+        )}
+      {canvas &&
+        canvas.getActiveObject() &&
+        canvas.getActiveObject().type === "textbox" && (
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg mb-2"
+            onClick={() => setGrammarlyDialog(true)}
+          >
+            Apply Grammarly Extension
+          </button>
+        )}
+      {dialog && (
+        <Dialog onClose={handleCloseDialog}>
+          <>
+            <TextWithEdits text={textValue} edits={edits} />
+            {rephraseOptions && rephraseOptions.length > 0 && (
+              <>
+                <div className="text-lg font-bold">
+                  Select a rephrase option:
+                </div>
+                <ul type="list-decimal pl-5 space-y-2">
+                  {rephraseOptions.map((option, index) => (
+                    <li key={index} className="text-left text-lg">
+                      + {option.replacement}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </>
+        </Dialog>
+      )}
+      {grammarlyDialog && (
+        <Dialog onClose={handleGrammarlyClose}>
+          <div
+            ref={editableDivRef} // Attach ref to the editable div
+            contentEditable={true}
+            suppressContentEditableWarning={true} // Suppress React warning for contentEditable
+            onInput={(e) => setTextValue(e.currentTarget.textContent)} // Update textValue dynamically
+            className="p-2 border border-gray-300 rounded"
+          >
+            {textValue}
+          </div>
+        </Dialog>
       )}
     </div>
   );
