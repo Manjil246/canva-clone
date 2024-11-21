@@ -24,8 +24,14 @@ const Text = ({ canvas }) => {
   const [rephraseOptions, setRephraseOptions] = useState([]);
   const [dialog, setDialog] = useState(false);
   const [grammarlyDialog, setGrammarlyDialog] = useState(false);
+  const [hasBackground, setHasBackground] = useState(true);
 
   const handleGrammarlyClose = () => setGrammarlyDialog(false);
+
+  const handleBlur = (e) => {
+    setTextValue(e.target.value); // Update state when the user leaves the textarea
+    updateActiveText("text", e.target.value); // Send the value to the parent or canvas
+  };
 
   const handleCloseDialog = () => setDialog(false);
   const editableDivRef = useRef(null);
@@ -116,7 +122,7 @@ const Text = ({ canvas }) => {
         fill: textColor,
         editable: true,
         textAlign: "left",
-        backgroundColor: "#ffffff",
+        backgroundColor: hasBackground ? backgroundColor : null,
       });
       canvas.add(text);
       canvas.setActiveObject(text);
@@ -147,6 +153,16 @@ const Text = ({ canvas }) => {
       }
     }
   };
+
+  useEffect(() => {
+    if (canvas) {
+      if (hasBackground) {
+        updateActiveText("backgroundColor", null);
+      } else {
+        updateActiveText("backgroundColor", backgroundColor);
+      }
+    }
+  }, [hasBackground]);
 
   const formatListText = (text, style) => {
     let lines = text.split("\n");
@@ -249,13 +265,13 @@ const Text = ({ canvas }) => {
         <>
           <label className="block mb-2">
             Text:
-            <input
-              type="text"
-              value={textValue}
+            <textarea
+              contentEditable="true"
+              defaultValue={textValue}
               onChange={(e) => {
                 setTextValue(e.target.value);
-                updateActiveText("text", e.target.value);
               }}
+              onBlur={handleBlur}
               className="ml-2 border border-gray-300 rounded px-2 py-1"
             />
           </label>
@@ -398,6 +414,9 @@ const Text = ({ canvas }) => {
           </label>
         </>
       )}
+      <button onClick={() => setHasBackground(!hasBackground)}>
+        Toggle Background
+      </button>
 
       {canvas &&
         canvas.getActiveObject() &&

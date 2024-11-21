@@ -10,6 +10,7 @@ import Guidelines from "./components/Guidelines";
 import AspectRatio from "./components/AspectRatio";
 import Pages from "./components/Pages";
 import SaveCanvas from "./components/SaveCanvas";
+import Shadow from "./components/Shadow";
 
 function App() {
   const canvasRef = useRef(null);
@@ -23,7 +24,7 @@ function App() {
         height: 500,
       });
 
-      initCanvas.backgroundColor = "white";
+      initCanvas.backgroundColor = "#00ff00";
       initCanvas.renderAll();
       setCanvas(initCanvas);
 
@@ -62,7 +63,10 @@ function App() {
         style={{ backgroundColor: "#B2CCFF" }}
       >
         <div className="flex justify-between w-full">
-          <Shapes canvas={canvas} />
+          <div>
+            <Shapes canvas={canvas} />
+            <Shadow canvas={canvas} />
+          </div>
           <div className="mt-20">
             <canvas id="canvas" ref={canvasRef}></canvas>
           </div>
