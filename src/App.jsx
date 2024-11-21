@@ -11,6 +11,7 @@ import AspectRatio from "./components/AspectRatio";
 import Pages from "./components/Pages";
 import SaveCanvas from "./components/SaveCanvas";
 import Shadow from "./components/Shadow";
+import Border from "./components/Border";
 
 function App() {
   const canvasRef = useRef(null);
@@ -24,7 +25,7 @@ function App() {
         height: 500,
       });
 
-      initCanvas.backgroundColor = "#00ff00";
+      initCanvas.backgroundColor = "#ffffff";
       initCanvas.renderAll();
       setCanvas(initCanvas);
 
@@ -66,6 +67,7 @@ function App() {
           <div>
             <Shapes canvas={canvas} />
             <Shadow canvas={canvas} />
+            <Border canvas={canvas} />
           </div>
           <div className="mt-20">
             <canvas id="canvas" ref={canvasRef}></canvas>
@@ -80,7 +82,7 @@ function App() {
             <SaveCanvas canvas={canvas} />
           </div>
         </div>
-        <Pages canvas={canvas} />
+        {/* <Pages canvas={canvas} /> */}
       </div>
     </>
   );

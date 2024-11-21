@@ -102,7 +102,7 @@ const Text = ({ canvas }) => {
     return () => {
       canvas.off("selection:created", handleSelection);
       canvas.off("selection:updated", handleSelection);
-      canvas.off("selection:cleared");
+      canvas.off("selection:cleared", () => setIsTextSelected(false));
       canvas.off("object:modified", handleModified);
       canvas.on("text:changed", handleModified);
     };
@@ -213,7 +213,7 @@ const Text = ({ canvas }) => {
       );
       const { data } = response;
       setEdits(data.edits);
-      console.log(JSON.stringify(data, null, 2));
+      // console.log(JSON.stringify(data, null, 2));
     } catch (err) {
       const { msg } = err.response.data;
       console.error({ err: msg });
@@ -232,7 +232,7 @@ const Text = ({ canvas }) => {
       );
       const { data } = response;
       setRephraseOptions(data.results);
-      console.log(JSON.stringify(data, null, 2));
+      // console.log(JSON.stringify(data, null, 2));
     } catch (err) {
       const { msg } = err.response.data;
       console.error({ err: msg });
@@ -247,7 +247,7 @@ const Text = ({ canvas }) => {
   }, [textValue]);
 
   return (
-    <div className="p-4 border border-gray-300 rounded">
+    <div className="p-4 border border-gray-300 rounded text-xs">
       <h3 className="text-lg font-semibold mb-2">Add and Edit Text</h3>
 
       {/* Add Text Buttons */}
@@ -262,7 +262,7 @@ const Text = ({ canvas }) => {
 
       {/* Formatting Options (Only visible if text is selected) */}
       {isTextSelected && (
-        <>
+        <div className="flex flex-col">
           <label className="block mb-2">
             Text:
             <textarea
@@ -412,11 +412,14 @@ const Text = ({ canvas }) => {
               <option value="numbered">Numbered</option>
             </select>
           </label>
-        </>
+          <button
+            onClick={() => setHasBackground(!hasBackground)}
+            className="p-2 bg-blue-600 text-white rounded-lg mb-2 w-fit m-auto"
+          >
+            Toggle Background
+          </button>
+        </div>
       )}
-      <button onClick={() => setHasBackground(!hasBackground)}>
-        Toggle Background
-      </button>
 
       {canvas &&
         canvas.getActiveObject() &&

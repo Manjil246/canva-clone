@@ -78,7 +78,7 @@ const Shadow = ({ canvas }) => {
           type="color"
           value={shadowColor}
           onChange={(e) => setShadowColor(e.target.value)}
-          className="w-full p-2 border rounded"
+          className="w-full"
         />
       </div>
 
