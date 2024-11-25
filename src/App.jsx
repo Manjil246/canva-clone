@@ -8,10 +8,12 @@ import Shapes from "./components/Shapes";
 import Line from "./components/Line";
 import Guidelines from "./components/Guidelines";
 import AspectRatio from "./components/AspectRatio";
-import Pages from "./components/Pages";
+// import Pages from "./components/Pages";
 import SaveCanvas from "./components/SaveCanvas";
 import Shadow from "./components/Shadow";
 import Border from "./components/Border";
+import Group from "./components/Group";
+import Layer from "./components/Layer";
 
 function App() {
   const canvasRef = useRef(null);
@@ -71,6 +73,8 @@ function App() {
           </div>
           <div className="mt-20">
             <canvas id="canvas" ref={canvasRef}></canvas>
+            <Group canvas={canvas} />
+            <Layer canvas={canvas} />
           </div>
           <div>
             <Settings canvas={canvas} />

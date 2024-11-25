@@ -6,6 +6,7 @@ const Settings = ({ canvas }) => {
   const [height, setHeight] = useState("");
   const [color, setColor] = useState("");
   const [diameter, setDiameter] = useState("");
+  const [opacity, setOpacity] = useState(1);
 
   useEffect(() => {
     if (canvas) {
@@ -32,6 +33,8 @@ const Settings = ({ canvas }) => {
     if (!object) return;
 
     setSelectedObject(object);
+    setOpacity(object.opacity);
+    
 
     if (object.type === "rect" || object.type === "triangle") {
       setWidth(Math.round(object.width * object.scaleX));
@@ -93,9 +96,19 @@ const Settings = ({ canvas }) => {
   };
   const handleColorChange = (e) => {
     const value = e.target.value;
+    setColor(value);
 
     if (selectedObject) {
       selectedObject.set({ fill: value });
+      canvas.renderAll();
+    }
+  };
+  const handleOpacityChange = (e) => {
+    const value = e.target.value;
+    setOpacity(value);
+
+    if (selectedObject) {
+      selectedObject.set({ opacity: value });
       canvas.renderAll();
     }
   };
@@ -115,6 +128,16 @@ const Settings = ({ canvas }) => {
         <div className="flex flex-col">
           <input type="text" value={diameter} onChange={handleDiameterChange} />
           <input type="color" value={color} onChange={handleColorChange} />
+        </div>
+      )}
+      {selectedObject && (
+        <div className="flex flex-col">
+          <input
+            type="text"
+            step={0.01}
+            value={opacity}
+            onChange={handleOpacityChange}
+          />
         </div>
       )}
     </div>
