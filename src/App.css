@@ -1,0 +1,20 @@
+.layer-panel {
+  width: 300px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 5px;
+}
+
+.layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.actions button {
+  margin: 0 3px;
+  padding: 5px;
+  cursor: pointer;
+}
