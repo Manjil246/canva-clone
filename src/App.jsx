@@ -14,6 +14,7 @@ import Shadow from "./components/Shadow";
 import Border from "./components/Border";
 import Group from "./components/Group";
 import Layer from "./components/Layer";
+import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
 
 function App() {
   const canvasRef = useRef(null);
@@ -75,6 +76,7 @@ function App() {
             <canvas id="canvas" ref={canvasRef}></canvas>
             <Group canvas={canvas} />
             <Layer canvas={canvas} />
+            <ImageCorrectionSaturation canvas={canvas} />
           </div>
           <div>
             <Settings canvas={canvas} />

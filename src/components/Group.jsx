@@ -53,29 +53,29 @@ const Group = ({ canvas }) => {
     }
   };
 
-  // const ungroupObjects = () => {
-  //   const activeObject = canvas.getActiveObject();
-  //   if (activeObject && activeObject.type === "group") {
-  //     const objects = activeObject.getObjects();
-  //     canvas.remove(activeObject);
+  const ungroupObjects = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === "group") {
+      const objects = activeObject.getObjects();
+      canvas.remove(activeObject);
 
-  //     objects.forEach((obj) => {
-  //       // Restore original properties and ensure visibility and selectability
-  //       obj.set({
-  //         left: obj.left,
-  //         top: obj.top,
-  //         angle: obj.angle,
-  //         visible: true,
-  //         selectable: true,
-  //         opacity: 1,
-  //       });
-  //       canvas.add(obj);
-  //     });
+      objects.forEach((obj) => {
+        // Restore original properties and ensure visibility and selectability
+        obj.set({
+          left: obj.left,
+          top: obj.top,
+          angle: obj.angle,
+          visible: true,
+          selectable: true,
+          opacity: 1,
+        });
+        canvas.add(obj);
+      });
 
-  //     // Ensure canvas is updated after modifications
-  //     canvas.renderAll();
-  //   }
-  // };
+      // Ensure canvas is updated after modifications
+      canvas.renderAll();
+    }
+  };
 
   return (
     <div className="space-y-2 text-center">
@@ -87,14 +87,14 @@ const Group = ({ canvas }) => {
           Group
         </button>
       )}
-      {/* {showUngroupButton && (
+      {showUngroupButton && (
         <button
           onClick={ungroupObjects}
           className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
         >
           Ungroup
         </button>
-      )} */}
+      )}
     </div>
   );
 };
