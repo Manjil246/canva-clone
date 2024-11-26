@@ -222,6 +222,27 @@ function App() {
     setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
   };
 
+  const handleDeletePage = (id) => {
+    if (pages.length === 1) {
+      alert("You must have at least one page.");
+      return;
+    }
+
+    const updatedPages = pages.filter((page) => page.id !== id);
+    setPages(updatedPages);
+
+    // Dispose of the deleted canvas
+    if (canvasesRef.current[id]) {
+      canvasesRef.current[id].dispose();
+      delete canvasesRef.current[id];
+    }
+
+    // Update activePage to the first remaining page
+    const remainingPage = updatedPages[0]?.id || 1;
+    setActivePage(remainingPage);
+    setCurrentCanvas(canvasesRef.current[remainingPage]);
+  };
+
   return (
     <div
       className="font-serif text-center flex flex-col w-screen space-y-10 items-center px-24 py-4 bg-gray-500 min-h-screen h-full"
@@ -244,17 +265,24 @@ function App() {
               </button>
             </div>
             <div className="page-list flex justify-center space-x-4">
-              {pages.map((page) => (
+              {pages.map((page, index) => (
                 <div
                   key={page.id}
-                  className={`cursor-pointer px-4 py-2 border ${
+                  className={`cursor-pointer flex items-center px-4 py-2 border ${
                     activePage === page.id
                       ? "bg-gray-300 font-bold"
                       : "bg-white"
                   }`}
-                  onClick={() => handleSwitchPage(page.id)}
                 >
-                  Page {page.id}
+                  <span onClick={() => handleSwitchPage(page.id)}>
+                    Page {index + 1}
+                  </span>
+                  <button
+                    className="ml-2 text-red-500 font-bold"
+                    onClick={() => handleDeletePage(page.id)}
+                  >
+                    ✕
+                  </button>
                 </div>
               ))}
             </div>
