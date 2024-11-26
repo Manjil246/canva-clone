@@ -8,7 +8,6 @@ const ImageCorrectionFilters = ({ canvas }) => {
   const [filterParams, setFilterParams] = useState({
     brightness: 0,
     contrast: 0,
-    saturation: 1,
     blur: 0,
   });
 
@@ -62,8 +61,6 @@ const ImageCorrectionFilters = ({ canvas }) => {
         return new filters.Brightness({ brightness: value });
       case "contrast":
         return new filters.Contrast({ contrast: value });
-      case "saturation":
-        return new filters.Saturation({ saturation: value });
       case "blur":
         return new filters.Blur({ blur: value });
       default:
@@ -78,7 +75,6 @@ const ImageCorrectionFilters = ({ canvas }) => {
     const adjustableFilters = [
       getAdjustableFilter("brightness", filterParams.brightness),
       getAdjustableFilter("contrast", filterParams.contrast),
-      getAdjustableFilter("saturation", filterParams.saturation),
       getAdjustableFilter("blur", filterParams.blur),
     ];
 
@@ -121,7 +117,6 @@ const ImageCorrectionFilters = ({ canvas }) => {
         const storedParams = selectedObject.get(`filterParams`) || {
           brightness: 0,
           contrast: 0,
-          saturation: 1,
           blur: 0,
         };
         const storedFilter = selectedObject.get(`currentFilter`) || null;
@@ -157,7 +152,6 @@ const ImageCorrectionFilters = ({ canvas }) => {
     activeImage.set("filterParams", {
       brightness: 0,
       contrast: 0,
-      saturation: 1,
       blur: 0,
     });
     activeImage.set("currentFilter", null);
@@ -166,7 +160,6 @@ const ImageCorrectionFilters = ({ canvas }) => {
     setFilterParams({
       brightness: 0,
       contrast: 0,
-      saturation: 1,
       blur: 0,
     });
     setCurrentFilter(null);
@@ -212,19 +205,6 @@ const ImageCorrectionFilters = ({ canvas }) => {
               value={filterParams.contrast}
               onChange={(e) =>
                 handleParameterChange("contrast", parseFloat(e.target.value))
-              }
-            />
-          </div>
-          <div>
-            <label>Saturation:</label>
-            <input
-              type="range"
-              min="0"
-              max="2"
-              step="0.1"
-              value={filterParams.saturation}
-              onChange={(e) =>
-                handleParameterChange("saturation", parseFloat(e.target.value))
               }
             />
           </div>
