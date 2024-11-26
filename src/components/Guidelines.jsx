@@ -159,6 +159,7 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
         excludeFromExport: true,
         opacity: 0, // Initially hidden
       });
+      line.customType = "guideline";
       newVerticalLines.push(line);
       canvas.add(line);
     }
@@ -172,6 +173,7 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
         excludeFromExport: true,
         opacity: 0, // Initially hidden
       });
+      line.customType = "guideline";
       newHorizontalLines.push(line);
       canvas.add(line);
     }
