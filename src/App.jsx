@@ -236,6 +236,51 @@ function App() {
     };
   }, []);
 
+  const onImportJSON = (jsonData) => {
+    try {
+      const parsedData = jsonData; // No need to parse it again as it is already parsed
+
+      if (!parsedData || !Array.isArray(parsedData.pages)) {
+        alert("Invalid JSON format.");
+        return;
+      }
+
+      // Remove existing canvases
+      Object.values(canvasesRef.current).forEach((canvas) => canvas.dispose());
+      canvasesRef.current = {};
+      setPages([]);
+      idRef.current = 0;
+
+      // Create new canvases from imported data
+      parsedData.pages.forEach((pageData, index) => {
+        const newPageId = index + 1;
+        idRef.current = newPageId;
+
+        setPages((prevPages) => [...prevPages, { id: newPageId }]);
+
+        // Create canvas with page data
+        setTimeout(() => {
+          createCanvas(newPageId);
+
+          // Restore canvas objects after the canvas is created
+          setTimeout(() => {
+            const canvas = canvasesRef.current[newPageId];
+            canvas.loadFromJSON(pageData.canvasData, () => {
+              canvas.renderAll();
+            });
+            canvas.setWidth(pageData.width || 500);
+            canvas.setHeight(pageData.height || 500);
+          }, 0);
+        }, 0);
+      });
+
+      setActivePage(1);
+      setCurrentCanvas(canvasesRef.current[1]);
+    } catch (error) {
+      console.error("Failed to import JSON:", error);
+    }
+  };
+
   const handleAddPage = () => {
     idRef.current += 1;
     const newPageId = idRef.current;
@@ -340,7 +385,11 @@ function App() {
           <Text canvas={currentCanvas} />
           <Line canvas={currentCanvas} />
           <AspectRatio canvas={currentCanvas} />
-          <SaveCanvas canvas={currentCanvas} />
+          <SaveCanvas
+            pages={pages}
+            canvasesRef={canvasesRef}
+            onImportJSON={onImportJSON}
+          />
         </div>
       </div>
     </div>
