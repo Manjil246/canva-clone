@@ -303,6 +303,7 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
         strokeDashArray: [1, 1],
         selectable: false,
         excludeFromExport: true,
+        evented: false,
         opacity: 0, // Initially hidden
       });
       line.customType = "guideline";
@@ -317,6 +318,7 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
         strokeDashArray: [1, 1],
         selectable: false,
         excludeFromExport: true,
+        evented: false,
         opacity: 0, // Initially hidden
       });
       line.customType = "guideline";
