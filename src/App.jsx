@@ -175,6 +175,7 @@ function App() {
   const [pages, setPages] = useState([{ id: 1 }]);
   const [activePage, setActivePage] = useState(1);
   const canvasesRef = useRef({});
+  const idRef = useRef(1);
 
   const createCanvas = (id) => {
     const canvasElement = document.getElementById(`canvas-${id}`);
@@ -192,6 +193,35 @@ function App() {
         backgroundColor: "#ffffff",
       });
 
+      const handleKeyDown = (e) => {
+        if (e.key === "Delete") {
+          const activeObjects = newCanvas.getActiveObjects();
+          if (activeObjects && activeObjects.length > 0) {
+            activeObjects.forEach((obj) => {
+              // Prevent deletion if the object is a Text and is in editing mode
+              if (obj.isEditing && obj.type === "textbox") {
+                return;
+              }
+              newCanvas.remove(obj);
+            });
+            newCanvas.discardActiveObject(); // Clear the active selection
+            newCanvas.renderAll();
+          }
+        }
+      };
+
+      // Attach the event listener
+      document.addEventListener("keydown", handleKeyDown);
+
+      // Cleanup event listener when the canvas is disposed
+      newCanvas.dispose = (() => {
+        const originalDispose = newCanvas.dispose.bind(newCanvas);
+        return () => {
+          document.removeEventListener("keydown", handleKeyDown);
+          originalDispose();
+        };
+      })();
+
       canvasesRef.current[id] = newCanvas;
       setCurrentCanvas(newCanvas); // Set the new canvas as the current canvas
     }
@@ -207,7 +237,8 @@ function App() {
   }, []);
 
   const handleAddPage = () => {
-    const newPageId = pages.length + 1;
+    idRef.current += 1;
+    const newPageId = idRef.current;
     setPages([...pages, { id: newPageId }]);
     setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
     setActivePage(newPageId);
@@ -294,6 +325,7 @@ function App() {
                   className={`${activePage === page.id ? "block" : "hidden"}`}
                 >
                   <canvas id={`canvas-${page.id}`}></canvas>
+                  <Guidelines canvas={canvasesRef.current[page.id]} />
                 </div>
               ))}
             </div>
@@ -307,7 +339,6 @@ function App() {
           <Image canvas={currentCanvas} />
           <Text canvas={currentCanvas} />
           <Line canvas={currentCanvas} />
-          <Guidelines canvas={currentCanvas} />
           <AspectRatio canvas={currentCanvas} />
           <SaveCanvas canvas={currentCanvas} />
         </div>
