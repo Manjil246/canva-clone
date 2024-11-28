@@ -37,7 +37,7 @@ function App() {
         height: 500,
         backgroundColor: "#ffffff",
       });
-      newCanvas.to
+      newCanvas.to;
 
       const handleKeyDown = (e) => {
         if (e.key === "Delete") {
@@ -167,40 +167,58 @@ function App() {
 
   return (
     <div
-      className="font-serif text-center flex flex-col w-screen space-y-10 items-center px-24 py-4 bg-gray-500 min-h-screen h-full"
-      style={{ backgroundColor: "#B2CCFF" }}
+      className="font-serif min-h-screen h-full flex flex-col"
+      style={{ background: "linear-gradient(to bottom, #B2CCFF, #ffffff)" }}
     >
-      <div className="flex justify-between w-full">
-        <div>
-          <Shapes canvas={currentCanvas} />
+      <div className="flex flex-col space-y-10">
+        {/* Top Toolbar */}
+        <div className="flex flex-wrap justify-between p-2 bg-white shadow-md">
           <Shadow canvas={currentCanvas} />
-          <Border canvas={currentCanvas} />
+          <div className="flex flex-col">
+            <Border canvas={currentCanvas} />
+            <Settings canvas={currentCanvas} />
+          </div>
+          <Text canvas={currentCanvas} />
+          <div className="flex flex-col">
+            <Image canvas={currentCanvas} />
+            <AspectRatio canvas={currentCanvas} />
+          </div>
+          <div className="flex flex-col">
+            <Line canvas={currentCanvas} />
+            <SaveCanvas
+              pages={pages}
+              canvasesRef={canvasesRef}
+              onImportJSON={onImportJSON}
+            />
+            <Shapes canvas={currentCanvas} />
+          </div>
         </div>
-        <div className="mt-20">
-          <div>
-            <div className="page-controls flex justify-center mb-4">
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded mx-2"
-                onClick={handleAddPage}
-              >
-                Add Page
-              </button>
-            </div>
-            <div className="page-list flex justify-center space-x-4">
+
+        {/* Main Content */}
+        <div className="flex flex-col items-center w-full">
+          {/* Page Controls */}
+          <div className="flex flex-col items-center space-y-4">
+            <button
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow-md transition"
+              onClick={handleAddPage}
+            >
+              Add Page
+            </button>
+            <div className="flex space-x-4 overflow-x-auto">
               {pages.map((page, index) => (
                 <div
                   key={page.id}
-                  className={`cursor-pointer flex items-center px-4 py-2 border ${
+                  className={`cursor-pointer flex items-center px-4 py-2 border rounded shadow-md ${
                     activePage === page.id
-                      ? "bg-gray-300 font-bold"
-                      : "bg-white"
+                      ? "bg-gray-200 font-bold border-gray-400"
+                      : "bg-white hover:bg-gray-100 border-gray-300"
                   }`}
                 >
                   <span onClick={() => handleSwitchPage(page.id)}>
                     Page {index + 1}
                   </span>
                   <button
-                    className="ml-2 text-red-500 font-bold"
+                    className="ml-2 text-red-500 font-bold hover:text-red-600 transition"
                     onClick={() => handleDeletePage(page.id)}
                   >
                     ✕
@@ -208,33 +226,29 @@ function App() {
                 </div>
               ))}
             </div>
-            <div className="canvas-container mt-4">
-              {pages.map((page) => (
-                <div
-                  key={page.id}
-                  className={`${activePage === page.id ? "block" : "hidden"}`}
-                >
-                  <canvas id={`canvas-${page.id}`}></canvas>
-                  <Guidelines canvas={canvasesRef.current[page.id]} />
-                </div>
-              ))}
-            </div>
           </div>
-          <Group canvas={currentCanvas} />
-          <Layer canvas={currentCanvas} />
-          <ImageCorrectionSaturation canvas={currentCanvas} />
-        </div>
-        <div>
-          <Settings canvas={currentCanvas} />
-          <Image canvas={currentCanvas} />
-          <Text canvas={currentCanvas} />
-          <Line canvas={currentCanvas} />
-          <AspectRatio canvas={currentCanvas} />
-          <SaveCanvas
-            pages={pages}
-            canvasesRef={canvasesRef}
-            onImportJSON={onImportJSON}
-          />
+
+          {/* Canvas Section */}
+          <div className="canvas-container mt-8 w-full flex justify-center">
+            {pages.map((page) => (
+              <div
+                key={page.id}
+                className={`${
+                  activePage === page.id ? "block" : "hidden"
+                } border rounded-lg shadow-md bg-white`}
+              >
+                <canvas id={`canvas-${page.id}`}></canvas>
+                <Guidelines canvas={canvasesRef.current[page.id]} />
+              </div>
+            ))}
+          </div>
+
+          {/* Additional Tools */}
+          <div className="flex flex-wrap justify-center gap-4 mt-8">
+            <Group canvas={currentCanvas} />
+            <Layer canvas={currentCanvas} />
+            <ImageCorrectionSaturation canvas={currentCanvas} />
+          </div>
         </div>
       </div>
     </div>
@@ -429,3 +443,75 @@ export default App;
 // }
 
 // export default App;
+
+// <div
+//   className="font-serif  min-h-screen h-full"
+//   style={{ backgroundColor: "#B2CCFF" }}
+// >
+//   <div className="flex justify-between w-full flex-col">
+//     <div className="flex h-fit">
+//       <Shapes canvas={currentCanvas} />
+//       <Shadow canvas={currentCanvas} />
+//       <Border canvas={currentCanvas} />
+//       <Settings canvas={currentCanvas} />
+//       <Image canvas={currentCanvas} />
+//       <Text canvas={currentCanvas} />
+//       <Line canvas={currentCanvas} />
+//       <AspectRatio canvas={currentCanvas} />
+//       <SaveCanvas
+//         pages={pages}
+//         canvasesRef={canvasesRef}
+//         onImportJSON={onImportJSON}
+//       />
+//     </div>
+//     <div className="mt-20">
+//       <div>
+//         <div className="page-controls flex justify-center mb-4">
+//           <button
+//             className="bg-blue-500 text-white px-4 py-2 rounded mx-2"
+//             onClick={handleAddPage}
+//           >
+//             Add Page
+//           </button>
+//         </div>
+//         <div className="page-list flex justify-center space-x-4">
+//           {pages.map((page, index) => (
+//             <div
+//               key={page.id}
+//               className={`cursor-pointer flex items-center px-4 py-2 border ${
+//                 activePage === page.id
+//                   ? "bg-gray-300 font-bold"
+//                   : "bg-white"
+//               }`}
+//             >
+//               <span onClick={() => handleSwitchPage(page.id)}>
+//                 Page {index + 1}
+//               </span>
+//               <button
+//                 className="ml-2 text-red-500 font-bold"
+//                 onClick={() => handleDeletePage(page.id)}
+//               >
+//                 ✕
+//               </button>
+//             </div>
+//           ))}
+//         </div>
+//         <div className="canvas-container mt-4">
+//           {pages.map((page) => (
+//             <div
+//               key={page.id}
+//               className={`${activePage === page.id ? "block" : "hidden"}`}
+//             >
+//               <canvas id={`canvas-${page.id}`}></canvas>
+//               <Guidelines canvas={canvasesRef.current[page.id]} />
+//             </div>
+//           ))}
+//         </div>
+//       </div>
+//       <Group canvas={currentCanvas} />
+//       <Layer canvas={currentCanvas} />
+//       <ImageCorrectionSaturation canvas={currentCanvas} />
+//     </div>
+//     <div></div>
+//   </div>
+// </div>

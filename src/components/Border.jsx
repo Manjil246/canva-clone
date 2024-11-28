@@ -246,40 +246,33 @@ const Border = ({ canvas }) => {
 
   return (
     <div className="border-settings">
-      <div className="mb-4">
-        <label htmlFor="border-color" className="mr-2">
-          Border Color:
-        </label>
+      <div>
+        <label htmlFor="border-color">Border Color:</label>
         <input
           type="color"
           id="border-color"
           value={borderColor}
           onChange={handleColorChange}
-          className="w-full"
         />
       </div>
-      <div className="mb-4">
-        <label htmlFor="border-width" className="mr-2">
-          Border Width:
-        </label>
+      <div>
+        <label htmlFor="border-width">Border Width:</label>
         <input
           type="number"
           id="border-width"
           value={borderWidth}
           onChange={handleWidthChange}
           min="1"
-          className="border p-2"
+          className="w-8 border"
         />
       </div>
-      <div className="mb-4">
-        <label htmlFor="border-type" className="mr-2">
-          Border Type:
-        </label>
+      <div>
+        <label htmlFor="border-type">Border Type:</label>
         <select
           id="border-type"
           value={borderType}
           onChange={handleTypeChange}
-          className="border p-2 w-full"
+          className="border w-fit"
         >
           <option value="solid">Solid</option>
           <option value="dashed">Dashed</option>
@@ -288,7 +281,7 @@ const Border = ({ canvas }) => {
         </select>
       </div>
       <button
-        className="p-2 mt-2 bg-red-500 text-white rounded hover:bg-red-700"
+        className=" bg-red-500 text-white rounded hover:bg-red-700"
         onClick={resetBorder}
       >
         Reset Border

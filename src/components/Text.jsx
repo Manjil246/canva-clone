@@ -247,13 +247,13 @@ const Text = ({ canvas }) => {
   }, [textValue]);
 
   return (
-    <div className="p-4 border border-gray-300 rounded text-xs">
-      <h3 className="text-lg font-semibold mb-2">Add and Edit Text</h3>
+    <div className="border border-gray-300 rounded text-xs w-[400px] text-center">
+      <h3 className="text-xs font-semibold mb-2">Add and Edit Text</h3>
 
       {/* Add Text Buttons */}
-      <div className="mb-4">
+      <div>
         <button
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg mr-2"
+          className="px-2 py-1 bg-blue-600 text-white rounded-lg text-sx mr-2"
           onClick={addText}
         >
           Add Text
@@ -263,7 +263,7 @@ const Text = ({ canvas }) => {
       {/* Formatting Options (Only visible if text is selected) */}
       {isTextSelected && (
         <div className="flex flex-col">
-          <label className="block mb-2">
+          {/* <label className="block mb-2">
             Text:
             <textarea
               contentEditable="true"
@@ -274,7 +274,7 @@ const Text = ({ canvas }) => {
               onBlur={handleBlur}
               className="ml-2 border border-gray-300 rounded px-2 py-1"
             />
-          </label>
+          </label> */}
 
           {/* Font Selection */}
           {isTextSelected && (
@@ -323,101 +323,107 @@ const Text = ({ canvas }) => {
             />
           </label>
 
-          <button
-            className={`px-4 py-2 border rounded mr-2 ${
-              fontWeight === "bold" ? "bg-gray-300" : ""
-            }`}
-            onClick={() => {
-              const newWeight = fontWeight === "bold" ? "normal" : "bold";
-              setFontWeight(newWeight);
-              updateActiveText("fontWeight", newWeight);
-            }}
-          >
-            Bold
-          </button>
-
-          <button
-            className={`px-4 py-2 border rounded mr-2 ${
-              fontStyle === "italic" ? "bg-gray-300" : ""
-            }`}
-            onClick={() => {
-              const newStyle = fontStyle === "italic" ? "normal" : "italic";
-              setFontStyle(newStyle);
-              updateActiveText("fontStyle", newStyle);
-            }}
-          >
-            Italic
-          </button>
-
-          <button
-            className={`px-4 py-2 border rounded mr-2 ${
-              textDecoration === "underline" ? "bg-gray-300" : ""
-            }`}
-            onClick={() => {
-              const isUnderline = textDecoration === "underline";
-              setTextDecoration(isUnderline ? "" : "underline");
-              updateActiveText("underline", !isUnderline);
-            }}
-          >
-            Underline
-          </button>
-
-          <label className="block mb-2">
-            Text Color:
-            <input
-              type="color"
-              value={textColor}
-              onChange={(e) => {
-                setTextColor(e.target.value);
-                updateActiveText("fill", e.target.value);
-              }}
-              className="ml-2 border border-gray-300 rounded px-2 py-1"
-            />
-          </label>
-          <label className="block mb-2">
-            Background Color:
-            <input
-              type="color"
-              value={backgroundColor}
-              onChange={(e) => {
-                setBackgroundColor(e.target.value);
-                updateActiveText("backgroundColor", e.target.value);
-              }}
-              className="ml-2 border border-gray-300 rounded px-2 py-1"
-            />
-          </label>
-          <label className="block mb-2">
-            Text Alignment:
-            <select
-              value={textAlign}
-              onChange={(e) => {
-                setTextAlign(e.target.value);
-                updateActiveText("textAlign", e.target.value);
+          <div className="flex">
+            <button
+              className={`px-4 py-2 border rounded mr-2 ${
+                fontWeight === "bold" ? "bg-gray-300" : ""
+              }`}
+              onClick={() => {
+                const newWeight = fontWeight === "bold" ? "normal" : "bold";
+                setFontWeight(newWeight);
+                updateActiveText("fontWeight", newWeight);
               }}
             >
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
-            </select>
-          </label>
-          <label className="block mb-2">
-            List Style:
-            <select
-              value={listStyle}
-              onChange={(e) => handleListStyleChange(e.target.value)}
-              className="ml-2 border border-gray-300 rounded px-2 py-1"
+              Bold
+            </button>
+
+            <button
+              className={`px-4 py-2 border rounded mr-2 ${
+                fontStyle === "italic" ? "bg-gray-300" : ""
+              }`}
+              onClick={() => {
+                const newStyle = fontStyle === "italic" ? "normal" : "italic";
+                setFontStyle(newStyle);
+                updateActiveText("fontStyle", newStyle);
+              }}
             >
-              <option value="none">None</option>
-              <option value="bullets">Bullets</option>
-              <option value="numbered">Numbered</option>
-            </select>
-          </label>
-          <button
-            onClick={() => setHasBackground(!hasBackground)}
-            className="p-2 bg-blue-600 text-white rounded-lg mb-2 w-fit m-auto"
-          >
-            Toggle Background
-          </button>
+              Italic
+            </button>
+
+            <button
+              className={`px-4 py-2 border rounded mr-2 ${
+                textDecoration === "underline" ? "bg-gray-300" : ""
+              }`}
+              onClick={() => {
+                const isUnderline = textDecoration === "underline";
+                setTextDecoration(isUnderline ? "" : "underline");
+                updateActiveText("underline", !isUnderline);
+              }}
+            >
+              Underline
+            </button>
+          </div>
+
+          <div className="flex">
+            <label className="block mb-2">
+              Text Color:
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => {
+                  setTextColor(e.target.value);
+                  updateActiveText("fill", e.target.value);
+                }}
+                className="ml-2 border border-gray-300 rounded px-2 py-1"
+              />
+            </label>
+            <label className="block mb-2">
+              Background Color:
+              <input
+                type="color"
+                value={backgroundColor}
+                onChange={(e) => {
+                  setBackgroundColor(e.target.value);
+                  updateActiveText("backgroundColor", e.target.value);
+                }}
+                className="ml-2 border border-gray-300 rounded px-2 py-1"
+              />
+            </label>
+          </div>
+          <div className="flex">
+            <label className="block mb-2">
+              Text Alignment:
+              <select
+                value={textAlign}
+                onChange={(e) => {
+                  setTextAlign(e.target.value);
+                  updateActiveText("textAlign", e.target.value);
+                }}
+              >
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </label>
+            <label className="block mb-2">
+              List Style:
+              <select
+                value={listStyle}
+                onChange={(e) => handleListStyleChange(e.target.value)}
+                className="ml-2 border border-gray-300 rounded px-2 py-1"
+              >
+                <option value="none">None</option>
+                <option value="bullets">Bullets</option>
+                <option value="numbered">Numbered</option>
+              </select>
+            </label>
+            <button
+              onClick={() => setHasBackground(!hasBackground)}
+              className=" bg-blue-600 text-white rounded-lg w-fit m-auto"
+            >
+              Toggle Background
+            </button>
+          </div>
         </div>
       )}
 

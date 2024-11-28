@@ -69,20 +69,10 @@ const Shadow = ({ canvas }) => {
   }
 
   return (
-    <div className="shadow-settings p-4 bg-white rounded shadow-lg">
-      <h3 className="text-lg font-bold mb-4">Shadow Settings</h3>
+    <div className="shadow-settings bg-white rounded shadow-lg text-xs">
+      <h3 className="text-lg font-bold">Shadow Settings</h3>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1">Shadow Color</label>
-        <input
-          type="color"
-          value={shadowColor}
-          onChange={(e) => setShadowColor(e.target.value)}
-          className="w-full"
-        />
-      </div>
-
-      <div className="mb-4">
+      <div>
         <label className="block text-sm font-medium mb-1">Shadow Blur</label>
         <input
           type="range"
@@ -90,12 +80,12 @@ const Shadow = ({ canvas }) => {
           max="50"
           value={shadowBlur}
           onChange={(e) => setShadowBlur(Number(e.target.value))}
-          className="w-full"
+          className="w-fit text-center"
         />
         <span className="text-sm">{shadowBlur}</span>
       </div>
 
-      <div className="mb-4">
+      <div>
         <label className="block text-sm font-medium mb-1">
           Shadow Offset X
         </label>
@@ -105,7 +95,7 @@ const Shadow = ({ canvas }) => {
           max="50"
           value={shadowOffsetX}
           onChange={(e) => setShadowOffsetX(Number(e.target.value))}
-          className="w-full"
+          className="w-fit text-center"
         />
         <span className="text-sm">{shadowOffsetX}</span>
       </div>
@@ -120,17 +110,26 @@ const Shadow = ({ canvas }) => {
           max="50"
           value={shadowOffsetY}
           onChange={(e) => setShadowOffsetY(Number(e.target.value))}
-          className="w-full"
+          className="w-fit text-center"
         />
         <span className="text-sm">{shadowOffsetY}</span>
       </div>
-
-      <button
-        onClick={resetShadow}
-        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-      >
-        Reset Shadow
-      </button>
+      <div className="flex flex-col">
+        <div>
+          <label className="block text-sm font-medium mb-1">Shadow Color</label>
+          <input
+            type="color"
+            value={shadowColor}
+            onChange={(e) => setShadowColor(e.target.value)}
+          />
+        </div>
+        <button
+          onClick={resetShadow}
+          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 h-fit w-fit"
+        >
+          Reset Shadow
+        </button>
+      </div>
     </div>
   );
 };

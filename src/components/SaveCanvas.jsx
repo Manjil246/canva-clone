@@ -282,41 +282,40 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
   };
 
   return (
-    <div>
-      {/* <button
-        onClick={handleExportJSON}
-        className="bg-blue-500 text-white px-4 py-2 rounded mx-2"
-      >
-        Export as JSON
-      </button> */}
-      <button
-        onClick={handleExportPDF}
-        className="bg-green-500 text-white px-4 py-2 rounded mx-2"
-      >
-        Export as PDF
-      </button>
-      <button
-        onClick={handleExportPPT}
-        className="bg-purple-500 text-white px-4 py-2 rounded mx-2"
-      >
-        Export as PPT
-      </button>
-      <div>
+    <div className="flex flex-col space-y-2 items-center mt-2 text-xs">
+      {/* <div>
         <label
           htmlFor="import-file"
-          className="bg-purple-500 text-white px-4 py-2 rounded mx-2 cursor-pointer"
+          className="bg-purple-500 text-white px-2 py-1 rounded mx-2 cursor-pointer"
         >
-          Import Canvas
+          Import Canvas as JSON
         </label>
         <input
           type="file"
           id="import-file"
           accept=".json"
-          className=""
+          className="hidden"
           onChange={handleImportJSON}
-          style={{ display: "none" }} // Hide the file input element
         />
       </div>
+      <button
+        onClick={handleExportJSON}
+        className="bg-red-500 text-white px-4 py-2 rounded mx-2 w-fit"
+      >
+        Export as JSON
+      </button> */}
+      <button
+        onClick={handleExportPDF}
+        className="bg-green-500 text-white px-4 py-2 rounded mx-2 w-fit"
+      >
+        Export as PDF
+      </button>
+      {/*<button
+        onClick={handleExportPPT}
+        className="bg-purple-500 text-white px-4 py-2 rounded mx-2"
+      >
+        Export as PPT
+      </button>*/}
     </div>
   );
 };
