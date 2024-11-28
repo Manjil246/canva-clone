@@ -4,5 +4,17 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        ".scroller": {
+          "scrollbar-width": "none",
+          "-ms-overflow-style": "none",
+        },
+        ".scroller::-webkit-scrollbar": {
+          display: "none",
+        },
+      });
+    },
+  ],
 };

@@ -1,23 +1,29 @@
 import { useEffect, useState } from "react";
 
-const AspectRatio = ({ canvas }) => {
+const AspectRatio = ({ pages, canvasesRef }) => {
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(500);
 
   const handleAspectRatioChange = () => {
-    if (canvas) {
-      canvas.setDimensions({ width, height });
-      canvas.renderAll();
-    }
+    pages.forEach((page) => {
+      const canvas = canvasesRef.current[page.id];
+      if (canvas) {
+        canvas.setWidth(width);
+        canvas.setHeight(height);
+        canvas.requestRenderAll();
+      }
+    });
   };
 
   useEffect(() => {
-    if (canvas) {
-      setHeight(canvas.height);
-      setWidth(canvas.width);
-      canvas.renderAll();
+    if (pages.length > 0) {
+      const firstCanvas = canvasesRef.current[pages[0]?.id];
+      if (firstCanvas) {
+        setWidth(firstCanvas.getWidth());
+        setHeight(firstCanvas.getHeight());
+      }
     }
-  }, [canvas]);
+  }, [pages, canvasesRef]);
 
   return (
     <div className="aspect-ratio-control">
@@ -30,9 +36,10 @@ const AspectRatio = ({ canvas }) => {
           <input
             type="number"
             id="width"
+            step={50}
             value={width}
             onChange={(e) => setWidth(Number(e.target.value))}
-            className="border px-2 py-1 rounded"
+            className="border px-2 py-1 rounded w-20"
           />
         </div>
         <div>
@@ -42,9 +49,10 @@ const AspectRatio = ({ canvas }) => {
           <input
             type="number"
             id="height"
+            step={50}
             value={height}
             onChange={(e) => setHeight(Number(e.target.value))}
-            className="border px-2 py-1 rounded"
+            className="border px-2 py-1 rounded w-20"
           />
         </div>
       </div>

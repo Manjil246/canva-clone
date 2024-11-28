@@ -283,7 +283,7 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
 
   return (
     <div className="flex flex-col space-y-2 items-center mt-2 text-xs">
-      {/* <div>
+      <div>
         <label
           htmlFor="import-file"
           className="bg-purple-500 text-white px-2 py-1 rounded mx-2 cursor-pointer"
@@ -303,7 +303,7 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
         className="bg-red-500 text-white px-4 py-2 rounded mx-2 w-fit"
       >
         Export as JSON
-      </button> */}
+      </button>
       <button
         onClick={handleExportPDF}
         className="bg-green-500 text-white px-4 py-2 rounded mx-2 w-fit"
