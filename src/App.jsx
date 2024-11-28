@@ -33,11 +33,10 @@ function App() {
 
       // Create a new canvas instance and store it
       const newCanvas = new fabric.Canvas(canvasElement, {
-        width: 500,
+        width: 800,
         height: 500,
         backgroundColor: "#ffffff",
       });
-      newCanvas.to;
 
       const handleKeyDown = (e) => {
         if (e.key === "Delete") {
@@ -170,7 +169,7 @@ function App() {
       className="font-serif min-h-screen h-full flex flex-col"
       style={{ background: "linear-gradient(to bottom, #B2CCFF, #ffffff)" }}
     >
-      <div className="flex flex-col space-y-10">
+      <div className="flex flex-col">
         {/* Top Toolbar */}
         <div className="flex flex-wrap justify-between p-2 bg-white shadow-md">
           <Shadow canvas={currentCanvas} />
@@ -195,7 +194,7 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex flex-col items-center w-full">
+        <div className="flex items-center justify-around w-full p-10">
           {/* Page Controls */}
           <div className="flex flex-col items-center space-y-4">
             <button
@@ -204,7 +203,7 @@ function App() {
             >
               Add Page
             </button>
-            <div className="flex space-x-4 overflow-x-auto">
+            <div className="flex flex-col space-y-4 overflow-x-auto">
               {pages.map((page, index) => (
                 <div
                   key={page.id}
@@ -233,9 +232,7 @@ function App() {
             {pages.map((page) => (
               <div
                 key={page.id}
-                className={`${
-                  activePage === page.id ? "block" : "hidden"
-                } border rounded-lg shadow-md bg-white`}
+                className={`${activePage === page.id ? "block" : "hidden"} `}
               >
                 <canvas id={`canvas-${page.id}`}></canvas>
                 <Guidelines canvas={canvasesRef.current[page.id]} />
