@@ -1,73 +1,222 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import * as fabric from "fabric";
 
-const Pages = ({ canvas }) => {
-  const [pages, setPages] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
+const Pages = ({ setCurrentCanvas }) => {
+  const [pages, setPages] = useState([{ id: 1 }]);
+  const [activePage, setActivePage] = useState(1);
+  const canvasesRef = useRef({});
 
-  const addPage = () => {
-    if (canvas) {
-      // Create a new page (empty Fabric canvas JSON)
-      const newPage = canvas.toJSON();
-      setPages([...pages, newPage]);
+  const createCanvas = (id) => {
+    const canvasElement = document.getElementById(`canvas-${id}`);
 
-      // Clear the current canvas for the new page
-      canvas.clear();
-      canvas.backgroundColor = "white";
-      canvas.renderAll();
+    if (canvasElement) {
+      // Dispose of the existing canvas instance if it exists
+      if (canvasesRef.current[id]) {
+        canvasesRef.current[id].dispose();
+      }
 
-      // Set the new page as the current page
-      setCurrentPage(pages.length);
+      // Create a new canvas instance and store it
+      const newCanvas = new fabric.Canvas(canvasElement, {
+        width: 500,
+        height: 500,
+        backgroundColor: "#ffffff",
+      });
+
+      canvasesRef.current[id] = newCanvas;
+      setCurrentCanvas(newCanvas); // Set the new canvas as the current canvas
     }
   };
 
-  const switchPage = (index) => {
-    if (canvas && pages[index]) {
-      // Save the current page
-      const updatedPages = [...pages];
-      updatedPages[currentPage] = canvas.toJSON();
-      setPages(updatedPages);
-
-      // Load the selected page into the canvas
-      canvas.loadFromJSON(pages[index], () => {
-        canvas.renderAll();
+  useEffect(() => {
+    createCanvas(1); // Initialize the first canvas
+    return () => {
+      Object.values(canvasesRef.current).forEach((canvasInstance) => {
+        canvasInstance.dispose();
       });
+    };
+  }, []);
 
-      setCurrentPage(index);
-    }
+  const handleAddPage = () => {
+    const newPageId = pages.length + 1;
+    setPages([...pages, { id: newPageId }]);
+    setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
+    setActivePage(newPageId);
+  };
+
+  const handleSwitchPage = (id) => {
+    setActivePage(id);
+    setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
   };
 
   return (
-    <div className="bg-gray-200 p-4 border-t border-gray-300">
-      <div className="flex justify-between mb-4">
+    <div>
+      <div className="page-controls flex justify-center mb-4">
         <button
-          onClick={addPage}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          className="bg-blue-500 text-white px-4 py-2 rounded mx-2"
+          onClick={handleAddPage}
         >
           Add Page
         </button>
       </div>
-      <div className="flex gap-4 overflow-x-auto">
-        {pages.map((page, index) => (
+      <div className="page-list flex justify-center space-x-4">
+        {pages.map((page) => (
           <div
-            key={index}
-            onClick={() => switchPage(index)}
-            className={`flex justify-center items-center w-24 h-20 border-2 rounded cursor-pointer ${
-              index === currentPage
-                ? "border-blue-500"
-                : "border-gray-300 hover:border-blue-300"
+            key={page.id}
+            className={`cursor-pointer px-4 py-2 border ${
+              activePage === page.id ? "bg-gray-300 font-bold" : "bg-white"
             }`}
+            onClick={() => handleSwitchPage(page.id)}
           >
-            <canvas
-              id={`thumbnail-${index}`}
-              width="100"
-              height="80"
-              className="bg-white"
-            ></canvas>
+            Page {page.id}
           </div>
         ))}
       </div>
+
+      <div className="canvas-container mt-4">
+        {pages.map((page) => (
+          <div
+            key={page.id}
+            className={`${activePage === page.id ? "block" : "hidden"}`}
+          >
+            <canvas id={`canvas-${page.id}`}></canvas>
+          </div>
+        ))}
+      </div>
+
+      {/* <div className="canvas-container mt-4">
+        {pages.map((page) => (
+          <canvas
+            key={page.id}
+            id={`canvas-${page.id}`}
+            className={`${activePage === page.id ? "block" : "hidden"}`}
+            // className={`block`}
+          ></canvas>
+        ))}
+      </div> */}
     </div>
   );
 };
 
 export default Pages;
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+// import React, { useState, useEffect, useRef } from "react";
+// import * as fabric from "fabric";
+
+// const Pages = ({ setCurrentCanvas }) => {
+//   const [pages, setPages] = useState([{ id: 1 }]);
+//   const [activePage, setActivePage] = useState(1);
+//   const canvasesRef = useRef({});
+
+//   const createCanvas = (id) => {
+//     const canvasElement = document.getElementById(`canvas-${id}`);
+
+//     if (canvasElement) {
+//       // Dispose of the existing canvas instance if it exists
+//       if (canvasesRef.current[id]) {
+//         canvasesRef.current[id].dispose();
+//       }
+
+//       // Create a new canvas instance and store it
+//       const newCanvas = new fabric.Canvas(canvasElement, {
+//         width: 500,
+//         height: 500,
+//         backgroundColor: "#ffffff",
+//       });
+
+//       canvasesRef.current[id] = newCanvas;
+//       setCurrentCanvas(newCanvas); // Set the new canvas as the current canvas
+//     }
+//   };
+
+//   useEffect(() => {
+//     createCanvas(1); // Initialize the first canvas
+//     return () => {
+//       // Dispose all canvas instances on cleanup
+//       Object.values(canvasesRef.current).forEach((canvasInstance) => {
+//         canvasInstance.dispose();
+//       });
+//     };
+//   }, []);
+
+//   const handleAddPage = () => {
+//     const newPageId = pages.length + 1;
+//     setPages([...pages, { id: newPageId }]);
+//     setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
+//     setActivePage(newPageId);
+//   };
+
+//   const handleSwitchPage = (id) => {
+//     setActivePage(id);
+//     setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
+//   };
+
+//   return (
+//     <div>
+//       <div className="page-controls flex justify-center mb-4">
+//         <button
+//           className="bg-blue-500 text-white px-4 py-2 rounded mx-2"
+//           onClick={handleAddPage}
+//         >
+//           Add Page
+//         </button>
+//       </div>
+//       <div className="page-list flex justify-center space-x-4">
+//         {pages.map((page) => (
+//           <div
+//             key={page.id}
+//             className={`cursor-pointer px-4 py-2 border ${
+//               activePage === page.id ? "bg-gray-300 font-bold" : "bg-white"
+//             }`}
+//             onClick={() => handleSwitchPage(page.id)}
+//           >
+//             Page {page.id}
+//           </div>
+//         ))}
+//       </div>
+
+//       <div className="canvas-container mt-4">
+//         {/* Only render the active page's canvas */}
+//         <canvas id={`canvas-${activePage}`} />
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Pages;
