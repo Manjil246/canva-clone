@@ -139,7 +139,7 @@ function App() {
           setTimeout(() => {
             const canvas = canvasesRef.current[newPageId];
             canvas.loadFromJSON(pageData.canvasData, () => {
-              canvas.renderAll();
+              canvas.requestRenderAll();
             });
             canvas.setWidth(pageData.width || 500);
             canvas.setHeight(pageData.height || 500);
@@ -222,7 +222,7 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex items-center justify-around w-full p-10">
+        <div className="flex items-center w-full p-10">
           {/* Page Controls */}
           <div className="flex flex-col items-center space-y-4">
             <button
@@ -245,11 +245,11 @@ function App() {
                   {/* Thumbnail Preview */}
                   <img
                     src={page.preview}
-                    alt={`Page ${page.index}`}
+                    alt={`Page ${index + 1}`}
                     className="w-52 h-20 object-contain bg-white rounded-t-md"
                   />
                   <div className="flex items-center justify-between px-2 py-1 bg-gray-100 rounded-b-md">
-                    <span>Page {page.id}</span>
+                    <span>Page {index + 1}</span>
                     <button
                       className="text-red-500 hover:text-red-700"
                       onClick={(e) => {
