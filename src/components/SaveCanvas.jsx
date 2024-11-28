@@ -148,6 +148,7 @@
 import React from "react";
 import jsPDF from "jspdf";
 import PptxGenJS from "pptxgenjs";
+import "svg2pdf.js";
 
 const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
   // Helper function to create a lightweight JSON structure
@@ -191,65 +192,78 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
   };
 
   const handleExportPDF = () => {
-    const canvas = canvasesRef.current[pages[0].id]; // Get the first canvas to check dimensions
-    if (!canvas) alert("Please create a canvas first.");
+    if (pages.length === 0) {
+      alert("Please create at least one canvas.");
+      return;
+    }
 
-    const canvasWidth = canvas.width;
-    const canvasHeight = canvas.height;
+    const firstCanvas = canvasesRef.current[pages[0].id]; // Get the first canvas to check dimensions
+    if (!firstCanvas) {
+      alert("Please create a canvas first.");
+      return;
+    }
+
+    // Get the dimensions of the first canvas
+    const canvasWidth = firstCanvas.width; // Canvas width in pixels
+    const canvasHeight = firstCanvas.height; // Canvas height in pixels
+
+    // Create a new jsPDF instance with the dimensions of the canvas
     const doc = new jsPDF({
-      unit: "px", // Set units to pixels
-      format: [canvasWidth, canvasHeight], // Set PDF format to match canvas size
+      orientation: canvasWidth > canvasHeight ? "landscape" : "portrait",
+      unit: "px", // Use pixel units to match the canvas size
+      format: [canvasWidth, canvasHeight], // Set PDF size to match canvas
     });
 
-    pages.forEach((page, index) => {
-      const currentCanvas = canvasesRef.current[page.id];
-      if (currentCanvas) {
-        const imgData = canvas.toDataURL("image/png");
-        if (index > 0) doc.addPage();
-        doc.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height); // Scaled to fit
+    // Process each page and add it to the PDF
+    const processPage = (index) => {
+      if (index >= pages.length) {
+        // Once all pages are processed, save the PDF
+        doc.save("template.pdf");
+        return;
       }
-    });
 
-    doc.save("template.pdf");
+      const page = pages[index];
+      const fabricCanvas = canvasesRef.current[page.id];
+
+      if (fabricCanvas) {
+        // Generate the SVG string for the current canvas
+        const svgString = fabricCanvas.toSVG();
+
+        // Parse the SVG string into a DOM element
+        const parser = new DOMParser();
+        const svgElement = parser.parseFromString(
+          svgString,
+          "image/svg+xml"
+        ).documentElement;
+
+        // Convert SVG to PDF
+        doc
+          .svg(svgElement, {
+            x: 0,
+            y: 0,
+            width: canvasWidth, // Match the canvas width
+            height: canvasHeight, // Match the canvas height
+          })
+          .then(() => {
+            // Add a new page for the next canvas (except the last page)
+            if (index < pages.length - 1) {
+              doc.addPage();
+            }
+            // Process the next page
+            processPage(index + 1);
+          })
+          .catch((error) => {
+            console.error(`Error converting page ${index + 1} to PDF:`, error);
+          });
+      } else {
+        console.error(`Canvas for page ${index + 1} not found.`);
+        processPage(index + 1); // Continue to the next page
+      }
+    };
+
+    // Start processing pages from the first one
+    processPage(0);
   };
-
-  // const handleExportPPT = () => {
-  //   const pptx = new PptxGenJS();
-
-  //   pages.forEach((page) => {
-  //     const canvas = canvasesRef.current[page.id];
-  //     if (canvas) {
-  //       const slide = pptx.addSlide();
-
-  //       canvas.getObjects().forEach((obj) => {
-  //         if (
-  //           obj.type === "rect" ||
-  //           obj.type === "circle" ||
-  //           obj.type === "textbox"
-  //         ) {
-  //           slide.addShape(pptx.ShapeType.rect, {
-  //             x: obj.left / 100,
-  //             y: obj.top / 100,
-  //             w: obj.width / 100,
-  //             h: obj.height / 100,
-  //             fill: obj.fill || "FFFFFF",
-  //             line: { color: obj.stroke || "000000" },
-  //           });
-  //         } else if (obj.type === "image") {
-  //           slide.addImage({
-  //             data: obj.toDataURL(),
-  //             x: obj.left / 100,
-  //             y: obj.top / 100,
-  //             w: obj.width / 100,
-  //             h: obj.height / 100,
-  //           });
-  //         }
-  //       });
-  //     }
-  //   });
-
-  //   pptx.writeFile({ fileName: "template.pptx" });
-  // };
 
   const handleImportJSON = (e) => {
     const file = e.target.files[0];
@@ -269,12 +283,12 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
 
   return (
     <div>
-      <button
+      {/* <button
         onClick={handleExportJSON}
         className="bg-blue-500 text-white px-4 py-2 rounded mx-2"
       >
         Export as JSON
-      </button>
+      </button> */}
       <button
         onClick={handleExportPDF}
         className="bg-green-500 text-white px-4 py-2 rounded mx-2"
@@ -286,14 +300,9 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
         className="bg-purple-500 text-white px-4 py-2 rounded mx-2"
       >
         Export as PPT
-      </button> */}
-      {/* <input
-        type="file"
-        accept=".json"
-        onChange={handleImportJSON}
-        className="bg-gray-500 text-white px-4 py-2 rounded mx-2"
-      /> */}
-      <div>
+      </button> 
+      */}
+      {/* <div>
         <label
           htmlFor="import-file"
           className="bg-purple-500 text-white px-4 py-2 rounded mx-2 cursor-pointer"
@@ -308,7 +317,7 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
           onChange={handleImportJSON}
           style={{ display: "none" }} // Hide the file input element
         />
-      </div>
+      </div> */}
     </div>
   );
 };

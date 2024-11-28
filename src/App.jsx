@@ -1,158 +1,3 @@
-// import { useRef, useState, useEffect } from "react";
-// import "./App.css";
-// import { Canvas } from "fabric";
-// import Settings from "./components/Settings";
-// import Image from "./components/Image";
-// import Text from "./components/Text";
-// import Shapes from "./components/Shapes";
-// import Line from "./components/Line";
-// import Guidelines from "./components/Guidelines";
-// import AspectRatio from "./components/AspectRatio";
-// // import Pages from "./components/Pages";
-// import SaveCanvas from "./components/SaveCanvas";
-// import Shadow from "./components/Shadow";
-// import Border from "./components/Border";
-// import Group from "./components/Group";
-// import Layer from "./components/Layer";
-// import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
-// import Pages from "./components/Pages";
-
-// function App() {
-//   const canvasRef = useRef(null);
-
-//   const [canvas, setCanvas] = useState(null);
-
-//   useEffect(() => {
-//     if (canvasRef.current) {
-//       const initCanvas = new Canvas(canvasRef.current, {
-//         width: 500,
-//         height: 500,
-//       });
-
-//       initCanvas.backgroundColor = "#ffffff";
-//       initCanvas.renderAll();
-//       setCanvas(initCanvas);
-
-//       // Add keydown listener for delete functionality
-//       const handleKeyDown = (e) => {
-//         if (e.key === "Delete") {
-//           const activeObjects = initCanvas.getActiveObjects();
-//           if (activeObjects && activeObjects.length > 0) {
-//             activeObjects.forEach((obj) => {
-//               // Prevent deletion if the object is a Text and is in editing mode
-//               if (obj.isEditing && obj.type === "textbox") {
-//                 return;
-//               }
-//               initCanvas.remove(obj);
-//             });
-//             initCanvas.discardActiveObject(); // Clear the active selection
-//             initCanvas.renderAll();
-//           }
-//         }
-//       };
-
-//       document.addEventListener("keydown", handleKeyDown);
-
-//       // Cleanup event listener
-//       return () => {
-//         initCanvas.dispose();
-//         document.removeEventListener("keydown", handleKeyDown);
-//       };
-//     }
-//   }, []);
-
-//   return (
-//     <>
-//       <div
-//         className="font-serif text-center flex flex-col w-screen space-y-10  items-center px-24 py-4 bg-gray-500 min-h-screen h-full"
-//         style={{ backgroundColor: "#B2CCFF" }}
-//       >
-//         <div className="flex justify-between w-full">
-//           <div>
-//             <Shapes canvas={canvas} />
-//             <Shadow canvas={canvas} />
-//             <Border canvas={canvas} />
-//           </div>
-//           <div className="mt-20">
-//             <canvas id="canvas" ref={canvasRef}></canvas>
-//             <Group canvas={canvas} />
-//             <Layer canvas={canvas} />
-//             <ImageCorrectionSaturation canvas={canvas} />
-//            // <Pages canvas={canvas} />
-//           </div>
-//           <div>
-//             <Settings canvas={canvas} />
-//             <Image canvas={canvas} />
-//             <Text canvas={canvas} />
-//             <Line canvas={canvas} />
-//             <Guidelines canvas={canvas} />
-//             <AspectRatio canvas={canvas} />
-//             <SaveCanvas canvas={canvas} />
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-// export default App;
-
-// import { useState } from "react";
-// import "./App.css";
-// import Settings from "./components/Settings";
-// import Image from "./components/Image";
-// import Text from "./components/Text";
-// import Shapes from "./components/Shapes";
-// import Line from "./components/Line";
-// import Guidelines from "./components/Guidelines";
-// import AspectRatio from "./components/AspectRatio";
-// import SaveCanvas from "./components/SaveCanvas";
-// import Shadow from "./components/Shadow";
-// import Border from "./components/Border";
-// import Group from "./components/Group";
-// import Layer from "./components/Layer";
-// import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
-// import Pages from "./components/Pages";
-
-// function App() {
-//   const [currentCanvas, setCurrentCanvas] = useState(null);
-
-//   return (
-//     <>
-//       <div
-//         className="font-serif text-center flex flex-col w-screen space-y-10  items-center px-24 py-4 bg-gray-500 min-h-screen h-full"
-//         style={{ backgroundColor: "#B2CCFF" }}
-//       >
-//         <div className="flex justify-between w-full">
-//           <div>
-//             <Shapes canvas={currentCanvas} />
-//             <Shadow canvas={currentCanvas} />
-//             <Border canvas={currentCanvas} />
-//           </div>
-//           <div className="mt-20">
-//             {/* Pages Component handles multiple canvases */}
-//             <Pages setCurrentCanvas={setCurrentCanvas} />
-//             <Group canvas={currentCanvas} />
-//             <Layer canvas={currentCanvas} />
-//             <ImageCorrectionSaturation canvas={currentCanvas} />
-//           </div>
-//           <div>
-//             <Settings canvas={currentCanvas} />
-//             <Image canvas={currentCanvas} />
-//             <Text canvas={currentCanvas} />
-//             <Line canvas={currentCanvas} />
-//             <Guidelines canvas={currentCanvas} />
-//             <AspectRatio canvas={currentCanvas} />
-//             <SaveCanvas canvas={currentCanvas} />
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// }
-
-// export default App;
-
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import Settings from "./components/Settings";
@@ -192,6 +37,7 @@ function App() {
         height: 500,
         backgroundColor: "#ffffff",
       });
+      newCanvas.to
 
       const handleKeyDown = (e) => {
         if (e.key === "Delete") {
@@ -362,7 +208,6 @@ function App() {
                 </div>
               ))}
             </div>
-
             <div className="canvas-container mt-4">
               {pages.map((page) => (
                 <div
@@ -397,3 +242,190 @@ function App() {
 }
 
 export default App;
+
+// import React, { useState, useEffect, useRef } from "react";
+// import "./App.css";
+// import Settings from "./components/Settings";
+// import Image from "./components/Image";
+// import Text from "./components/Text";
+// import Shapes from "./components/Shapes";
+// import Line from "./components/Line";
+// import Guidelines from "./components/Guidelines";
+// import AspectRatio from "./components/AspectRatio";
+// import SaveCanvas from "./components/SaveCanvas";
+// import Shadow from "./components/Shadow";
+// import Border from "./components/Border";
+// import Group from "./components/Group";
+// import Layer from "./components/Layer";
+// import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
+// import * as fabric from "fabric";
+
+// function App() {
+//   const [currentCanvas, setCurrentCanvas] = useState(null);
+//   const [pages, setPages] = useState([{ id: 1 }]);
+//   const [activePage, setActivePage] = useState(1);
+//   const [thumbnails, setThumbnails] = useState({});
+//   const canvasesRef = useRef({});
+//   const idRef = useRef(1);
+
+//   const createCanvas = (id) => {
+//     const canvasElement = document.getElementById(`canvas-${id}`);
+
+//     if (canvasElement) {
+//       // Dispose of the existing canvas instance if it exists
+//       if (canvasesRef.current[id]) {
+//         canvasesRef.current[id].dispose();
+//       }
+
+//       // Create a new canvas instance and store it
+//       const newCanvas = new fabric.Canvas(canvasElement, {
+//         width: 500,
+//         height: 500,
+//         backgroundColor: "#ffffff",
+//       });
+
+//       // Update thumbnail whenever canvas changes
+//       newCanvas.on("object:modified", () => updateThumbnail(id));
+//       newCanvas.on("object:added", () => updateThumbnail(id));
+//       newCanvas.on("object:removed", () => updateThumbnail(id));
+
+//       canvasesRef.current[id] = newCanvas;
+//       setCurrentCanvas(newCanvas); // Set the new canvas as the current canvas
+//     }
+//   };
+
+//   useEffect(() => {
+//     createCanvas(1); // Initialize the first canvas
+//     return () => {
+//       Object.values(canvasesRef.current).forEach((canvasInstance) => {
+//         canvasInstance.dispose();
+//       });
+//     };
+//   }, []);
+
+//   // Update the thumbnail of the canvas
+//   const updateThumbnail = (id) => {
+//     const canvas = canvasesRef.current[id];
+//     if (canvas) {
+//       const thumbnailData = canvas.toDataURL({
+//         format: "png",
+//         quality: 0.5,
+//       });
+//       setThumbnails((prev) => ({ ...prev, [id]: thumbnailData }));
+//     }
+//   };
+
+//   const handleAddPage = () => {
+//     idRef.current += 1;
+//     const newPageId = idRef.current;
+//     setPages([...pages, { id: newPageId }]);
+//     setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
+//     setActivePage(newPageId);
+//   };
+
+//   const handleSwitchPage = (id) => {
+//     setActivePage(id);
+//     setCurrentCanvas(canvasesRef.current[id]);
+//   };
+
+//   const handleDeletePage = (id) => {
+//     if (pages.length === 1) {
+//       alert("You must have at least one page.");
+//       return;
+//     }
+
+//     const updatedPages = pages.filter((page) => page.id !== id);
+//     setPages(updatedPages);
+
+//     // Dispose of the deleted canvas
+//     if (canvasesRef.current[id]) {
+//       canvasesRef.current[id].dispose();
+//       delete canvasesRef.current[id];
+//     }
+
+//     // Update activePage to the first remaining page
+//     const remainingPage = updatedPages[0]?.id || 1;
+//     setActivePage(remainingPage);
+//     setCurrentCanvas(canvasesRef.current[remainingPage]);
+//   };
+
+//   return (
+//     <div
+//       className="font-serif text-center flex flex-col w-screen space-y-10 items-center px-24 py-4 bg-gray-500 min-h-screen h-full"
+//       style={{ backgroundColor: "#B2CCFF" }}
+//     >
+//       <div className="flex justify-between w-full">
+//         <div>
+//           <Shapes canvas={currentCanvas} />
+//           <Shadow canvas={currentCanvas} />
+//           <Border canvas={currentCanvas} />
+//         </div>
+//         <div className="mt-20">
+//           <div className="page-controls flex justify-center mb-4">
+//             <button
+//               className="bg-blue-500 text-white px-4 py-2 rounded mx-2"
+//               onClick={handleAddPage}
+//             >
+//               Add Page
+//             </button>
+//           </div>
+//           <div className="page-list flex justify-center space-x-4">
+//             {pages.map((page, index) => (
+//               <div
+//                 key={page.id}
+//                 className={`cursor-pointer flex flex-col items-center justify-center p-2 border ${
+//                   activePage === page.id
+//                     ? "bg-gray-300 font-bold border-blue-500"
+//                     : "bg-white"
+//                 }`}
+//                 style={{ width: 100, height: 120 }}
+//                 onClick={() => handleSwitchPage(page.id)}
+//               >
+//                 {thumbnails[page.id] ? (
+//                   <img
+//                     src={thumbnails[page.id]}
+//                     alt={`Page ${index + 1}`}
+//                     className="rounded-lg"
+//                     style={{ width: "100%", height: "80px", objectFit: "cover" }}
+//                   />
+//                 ) : (
+//                   <div
+//                     className="bg-gray-200 rounded-lg"
+//                     style={{ width: "100%", height: "80px" }}
+//                   />
+//                 )}
+//                 <span className="text-sm mt-2">Page {index + 1}</span>
+//               </div>
+//             ))}
+//           </div>
+
+//           <div className="canvas-container mt-4">
+//             {pages.map((page) => (
+//               <div
+//                 key={page.id}
+//                 className={`${activePage === page.id ? "block" : "hidden"}`}
+//               >
+//                 <canvas id={`canvas-${page.id}`}></canvas>
+//                 <Guidelines canvas={canvasesRef.current[page.id]} />
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//         <div>
+//           <Settings canvas={currentCanvas} />
+//           <Image canvas={currentCanvas} />
+//           <Text canvas={currentCanvas} />
+//           <Line canvas={currentCanvas} />
+//           <AspectRatio canvas={currentCanvas} />
+//           <SaveCanvas
+//             pages={pages}
+//             canvasesRef={canvasesRef}
+//             onImportJSON={onImportJSON}
+//           />
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// export default App;
