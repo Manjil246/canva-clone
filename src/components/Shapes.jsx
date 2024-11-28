@@ -44,21 +44,21 @@ const Shapes = ({ canvas }) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col  text-xs">
       <button
-        className="px-4 py-2 bg-green-700 text-white rounded-2xl border border-white m-5"
+        className="px-2 py-1 bg-green-700 text-white rounded-2xl border border-white m-1"
         onClick={addRectangle}
       >
         Add Rectangle
       </button>
       <button
-        className="px-4 py-2 bg-green-700 text-white rounded-2xl border border-white m-5"
+        className="px-2 py-1 bg-green-700 text-white rounded-2xl border border-white m-1"
         onClick={addCircle}
       >
         Add Circle
       </button>
       <button
-        className="px-4 py-2 bg-green-700 text-white rounded-2xl border border-white m-5"
+        className="px-2 py-1 bg-green-700 text-white rounded-2xl border border-white m-1"
         onClick={addTriangle}
       >
         Add Triangle

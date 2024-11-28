@@ -87,13 +87,13 @@ const Image = ({ canvas }) => {
 
   return (
     <div
-      className="p-4 border border-gray-300 rounded"
+      className="border border-gray-300 rounded text-center text-xs"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <h3 className="text-lg font-semibold mb-2">Add Image</h3>
+      <h3 className="text-lg font-semibold">Add Image</h3>
       <button
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+        className="px-2 py-1 bg-blue-600 text-white rounded-lg"
         onClick={() => fileInputRef.current.click()}
       >
         Upload Image
@@ -105,7 +105,7 @@ const Image = ({ canvas }) => {
         onChange={handleFileUpload}
         className="hidden"
       />
-      <p className="mt-2 text-sm text-gray-500">
+      <p className="text-sm text-gray-500">
         Drag & drop, copy-paste, or upload an image.
       </p>
     </div>

@@ -58,12 +58,12 @@ const Line = ({ canvas }) => {
 
   return (
     <button
-      className={`p-2 mt-2 rounded ${
+      className={`w-fit p-2 rounded ${
         isLineModeActive ? "bg-red-500" : "bg-blue-500"
       } text-white hover:bg-blue-700`}
       onClick={toggleLineMode}
     >
-      {isLineModeActive ? "Stop Drawing Line" : "Draw Line"}
+      {isLineModeActive ? "Stop" : "Draw Line"}
     </button>
   );
 };

@@ -34,7 +34,6 @@ const Settings = ({ canvas }) => {
 
     setSelectedObject(object);
     setOpacity(object.opacity);
-    
 
     if (object.type === "rect" || object.type === "triangle") {
       setWidth(Math.round(object.width * object.scaleX));
@@ -131,12 +130,14 @@ const Settings = ({ canvas }) => {
         </div>
       )}
       {selectedObject && (
-        <div className="flex flex-col">
+        <div className="flex space-x-4">
+          <div>Opacity</div>
           <input
-            type="text"
-            step={0.01}
+            type="number"
+            step={0.1}
             value={opacity}
             onChange={handleOpacityChange}
+            className="w-12 border"
           />
         </div>
       )}
