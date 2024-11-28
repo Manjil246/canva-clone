@@ -295,14 +295,13 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
       >
         Export as PDF
       </button>
-      {/* <button
+      <button
         onClick={handleExportPPT}
         className="bg-purple-500 text-white px-4 py-2 rounded mx-2"
       >
         Export as PPT
-      </button> 
-      */}
-      {/* <div>
+      </button>
+      <div>
         <label
           htmlFor="import-file"
           className="bg-purple-500 text-white px-4 py-2 rounded mx-2 cursor-pointer"
@@ -317,7 +316,7 @@ const SaveCanvas = ({ pages, canvasesRef, onImportJSON }) => {
           onChange={handleImportJSON}
           style={{ display: "none" }} // Hide the file input element
         />
-      </div> */}
+      </div>
     </div>
   );
 };
