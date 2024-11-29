@@ -206,7 +206,6 @@ function App() {
           <div className="flex flex-col">
             <Border canvas={currentCanvas} />
             <Settings canvas={currentCanvas} />
-            <UndoRedo canvas={currentCanvas} />
           </div>
           <Text canvas={currentCanvas} />
           <div className="flex flex-col">
@@ -225,9 +224,9 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex items-center w-full p-10">
+        <div className="flex w-full px-10 ">
           {/* Page Controls */}
-          <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center space-y-4 mt-4">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow-md transition"
               onClick={handleAddPage}
@@ -275,6 +274,7 @@ function App() {
                 key={page.id}
                 className={`${activePage === page.id ? "block" : "hidden"} `}
               >
+                {/* <UndoRedo canvas={canvasesRef.current[page.id]} /> */}
                 <canvas
                   id={`canvas-${page.id}`}
                   className="border border-black"
@@ -285,8 +285,7 @@ function App() {
           </div>
 
           {/* Additional Tools */}
-          <div className="flex flex-wrap justify-center gap-4 mt-8">
-            <Group canvas={currentCanvas} />
+          <div className="flex flex-col justify-start gap-4 mt-8">
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>
