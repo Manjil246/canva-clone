@@ -82,6 +82,7 @@ function App() {
       newCanvas.on("object:modified", updatePreview);
       newCanvas.on("object:added", updatePreview);
       newCanvas.on("canvas:render", updatePreview);
+      newCanvas.on("object:removed", updatePreview);
 
       // Generate the initial preview
       updatePreview();
