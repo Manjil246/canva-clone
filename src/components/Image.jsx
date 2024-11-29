@@ -106,7 +106,8 @@ const Image = ({ canvas }) => {
         className="hidden"
       />
       <p className="text-sm text-gray-500">
-        Drag & drop, copy-paste, or upload an image.
+        Drag & drop, copy-paste,
+        <br /> or upload an image.
       </p>
     </div>
   );

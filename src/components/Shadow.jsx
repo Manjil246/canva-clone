@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 
 const Shadow = ({ canvas }) => {
   const [shadowColor, setShadowColor] = useState("#000000");
-  const [shadowBlur, setShadowBlur] = useState(10);
+  const [shadowBlur, setShadowBlur] = useState(0);
   const [shadowOffsetX, setShadowOffsetX] = useState(0);
   const [shadowOffsetY, setShadowOffsetY] = useState(0);
   const [isObjectSelected, setIsObjectSelected] = useState(false);
