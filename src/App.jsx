@@ -14,6 +14,7 @@ import Group from "./components/Group";
 import Layer from "./components/Layer";
 import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
 import * as fabric from "fabric";
+import UndoRedo from "./components/UndoRedo";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -155,23 +156,6 @@ function App() {
     }
   };
 
-  const handleAddPage = () => {
-    idRef.current += 1;
-    const newPageId = idRef.current;
-    setPages([...pages, { id: newPageId }]);
-    setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
-    setActivePage(newPageId);
-  };
-
-  const handleSwitchPage = (id) => {
-    if (currentCanvas) {
-      currentCanvas.discardActiveObject(); // Discard the selected object
-      currentCanvas.renderAll(); // Re-render the canvas to reflect the changes
-    }
-    setActivePage(id);
-    setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
-  };
-
   const handleDeletePage = (id) => {
     if (pages.length === 1) {
       alert("You must have at least one page.");
@@ -193,6 +177,23 @@ function App() {
     setCurrentCanvas(canvasesRef.current[remainingPage]);
   };
 
+  const handleAddPage = () => {
+    idRef.current += 1;
+    const newPageId = idRef.current;
+    setPages([...pages, { id: newPageId }]);
+    setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
+    setActivePage(newPageId);
+  };
+
+  const handleSwitchPage = (id) => {
+    if (currentCanvas) {
+      currentCanvas.discardActiveObject(); // Discard the selected object
+      currentCanvas.renderAll(); // Re-render the canvas to reflect the changes
+    }
+    setActivePage(id);
+    setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
+  };
+
   return (
     <div
       className="font-serif min-h-screen h-full flex flex-col"
@@ -205,6 +206,7 @@ function App() {
           <div className="flex flex-col">
             <Border canvas={currentCanvas} />
             <Settings canvas={currentCanvas} />
+            <UndoRedo canvas={currentCanvas} />
           </div>
           <Text canvas={currentCanvas} />
           <div className="flex flex-col">
