@@ -135,6 +135,8 @@ const Settings = ({ canvas }) => {
           <input
             type="number"
             step={0.1}
+            min={0}
+            max={1}
             value={opacity}
             onChange={handleOpacityChange}
             className="w-12 border"

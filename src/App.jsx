@@ -14,6 +14,7 @@ import Group from "./components/Group";
 import Layer from "./components/Layer";
 import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
 import * as fabric from "fabric";
+import UndoRedo from "./components/UndoRedo";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -155,23 +156,6 @@ function App() {
     }
   };
 
-  const handleAddPage = () => {
-    idRef.current += 1;
-    const newPageId = idRef.current;
-    setPages([...pages, { id: newPageId }]);
-    setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
-    setActivePage(newPageId);
-  };
-
-  const handleSwitchPage = (id) => {
-    if (currentCanvas) {
-      currentCanvas.discardActiveObject(); // Discard the selected object
-      currentCanvas.renderAll(); // Re-render the canvas to reflect the changes
-    }
-    setActivePage(id);
-    setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
-  };
-
   const handleDeletePage = (id) => {
     if (pages.length === 1) {
       alert("You must have at least one page.");
@@ -191,6 +175,23 @@ function App() {
     const remainingPage = updatedPages[0]?.id || 1;
     setActivePage(remainingPage);
     setCurrentCanvas(canvasesRef.current[remainingPage]);
+  };
+
+  const handleAddPage = () => {
+    idRef.current += 1;
+    const newPageId = idRef.current;
+    setPages([...pages, { id: newPageId }]);
+    setTimeout(() => createCanvas(newPageId), 0); // Wait for DOM to update
+    setActivePage(newPageId);
+  };
+
+  const handleSwitchPage = (id) => {
+    if (currentCanvas) {
+      currentCanvas.discardActiveObject(); // Discard the selected object
+      currentCanvas.renderAll(); // Re-render the canvas to reflect the changes
+    }
+    setActivePage(id);
+    setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
   };
 
   return (
@@ -223,9 +224,9 @@ function App() {
         </div>
 
         {/* Main Content */}
-        <div className="flex items-center w-full p-10">
+        <div className="flex w-full px-10 ">
           {/* Page Controls */}
-          <div className="flex flex-col items-center space-y-4">
+          <div className="flex flex-col items-center space-y-4 mt-4">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow-md transition"
               onClick={handleAddPage}
@@ -273,6 +274,7 @@ function App() {
                 key={page.id}
                 className={`${activePage === page.id ? "block" : "hidden"} `}
               >
+                {/* <UndoRedo canvas={canvasesRef.current[page.id]} /> */}
                 <canvas
                   id={`canvas-${page.id}`}
                   className="border border-black"
@@ -283,8 +285,7 @@ function App() {
           </div>
 
           {/* Additional Tools */}
-          <div className="flex flex-wrap justify-center gap-4 mt-8">
-            <Group canvas={currentCanvas} />
+          <div className="flex flex-col justify-start gap-4 mt-8">
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>

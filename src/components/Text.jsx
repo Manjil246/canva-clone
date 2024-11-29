@@ -16,7 +16,7 @@ const Text = ({ canvas }) => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
-  const [textAlign, setTextAlign] = useState("left");
+  const [textAlign, setTextAlign] = useState("center");
   const [fonts, setFonts] = useState([]);
   const [listStyle, setListStyle] = useState("none");
   const [previousListStyle, setPreviousListStyle] = useState("none");
@@ -25,6 +25,7 @@ const Text = ({ canvas }) => {
   const [dialog, setDialog] = useState(false);
   const [grammarlyDialog, setGrammarlyDialog] = useState(false);
   const [hasBackground, setHasBackground] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const handleGrammarlyClose = () => setGrammarlyDialog(false);
 
@@ -49,16 +50,56 @@ const Text = ({ canvas }) => {
         const response = await axios.get(
           "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyChVtk1O-m1sCVqnSBVrLBXh89H-bQCvvw"
         );
+        const fontList = response.data.items
+          .map((font) => font.family)
+          .splice(0, 500);
 
-        const fontList = response.data.items.map((font) => font.family);
-        setFonts(fontList);
+        WebFont.load({
+          google: {
+            families: [...fontList],
+          },
+          active: () => {
+            setFonts(fontList);
+            setLoading(false);
+          },
+          inactive: () => {
+            console.error("Failed to load fonts");
+            setLoading(false);
+          },
+        });
       } catch (error) {
         console.error("Error fetching fonts:", error);
+        setLoading(false);
       }
     };
 
     fetchFonts();
   }, []);
+
+  const updateActiveText = (property, value) => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === "textbox") {
+      if (property === "fontFamily") {
+        // Load the font using Web Font Loader
+        WebFont.load({
+          google: {
+            families: [value], // Font family to load
+          },
+          active: () => {
+            // Font is loaded, apply it to the canvas object
+            activeObject.set(property, value);
+            canvas.renderAll();
+          },
+          inactive: () => {
+            console.error(`Failed to load the font: ${value}`);
+          },
+        });
+      } else {
+        activeObject.set(property, value);
+        canvas.renderAll();
+      }
+    }
+  };
 
   useEffect(() => {
     if (!canvas) return;
@@ -121,36 +162,11 @@ const Text = ({ canvas }) => {
         fontFamily,
         fill: textColor,
         editable: true,
-        textAlign: "left",
+        textAlign: "center",
         backgroundColor: hasBackground ? backgroundColor : null,
       });
       canvas.add(text);
       canvas.setActiveObject(text);
-    }
-  };
-
-  const updateActiveText = (property, value) => {
-    const activeObject = canvas.getActiveObject();
-    if (activeObject && activeObject.type === "textbox") {
-      if (property === "fontFamily") {
-        // Load the font using Web Font Loader
-        WebFont.load({
-          google: {
-            families: [value], // Font family to load
-          },
-          active: () => {
-            // Font is loaded, apply it to the canvas object
-            activeObject.set(property, value);
-            canvas.renderAll();
-          },
-          inactive: () => {
-            console.error(`Failed to load the font: ${value}`);
-          },
-        });
-      } else {
-        activeObject.set(property, value);
-        canvas.renderAll();
-      }
     }
   };
 
@@ -246,6 +262,14 @@ const Text = ({ canvas }) => {
     }
   }, [textValue]);
 
+  if (loading) {
+    return (
+      <div className="border border-gray-300 rounded text-xs w-[400px] text-center">
+        <h3 className="text-xs font-semibold mb-2">Loading fonts...</h3>
+      </div>
+    );
+  }
+
   return (
     <div className="border border-gray-300 rounded text-xs w-[400px] text-center">
       <h3 className="text-xs font-semibold mb-2">Add and Edit Text</h3>
@@ -262,20 +286,7 @@ const Text = ({ canvas }) => {
 
       {/* Formatting Options (Only visible if text is selected) */}
       {isTextSelected && (
-        <div className="flex flex-col">
-          {/* <label className="block mb-2">
-            Text:
-            <textarea
-              contentEditable="true"
-              defaultValue={textValue}
-              onChange={(e) => {
-                setTextValue(e.target.value);
-              }}
-              onBlur={handleBlur}
-              className="ml-2 border border-gray-300 rounded px-2 py-1"
-            />
-          </label> */}
-
+        <div className="flex flex-col items-center">
           {/* Font Selection */}
           {isTextSelected && (
             <label className="block mb-2">
@@ -286,10 +297,11 @@ const Text = ({ canvas }) => {
                   setFontFamily(e.target.value);
                   updateActiveText("fontFamily", e.target.value);
                 }}
+                style={{ fontFamily: fontFamily }}
                 className="ml-2 border border-gray-300 rounded px-2 py-1"
               >
                 {fonts.map((font, index) => (
-                  <option key={index} value={font}>
+                  <option key={index} value={font} style={{ fontFamily: font }}>
                     {font}
                   </option>
                 ))}
@@ -325,7 +337,7 @@ const Text = ({ canvas }) => {
 
           <div className="flex">
             <button
-              className={`px-4 py-2 border rounded mr-2 ${
+              className={`px-4 py-2 border rounded mr-2 font-bold ${
                 fontWeight === "bold" ? "bg-gray-300" : ""
               }`}
               onClick={() => {
@@ -338,7 +350,7 @@ const Text = ({ canvas }) => {
             </button>
 
             <button
-              className={`px-4 py-2 border rounded mr-2 ${
+              className={`px-4 py-2 border rounded mr-2 italic ${
                 fontStyle === "italic" ? "bg-gray-300" : ""
               }`}
               onClick={() => {
@@ -351,7 +363,7 @@ const Text = ({ canvas }) => {
             </button>
 
             <button
-              className={`px-4 py-2 border rounded mr-2 ${
+              className={`px-4 py-2 border rounded mr-2 underline ${
                 textDecoration === "underline" ? "bg-gray-300" : ""
               }`}
               onClick={() => {
@@ -400,8 +412,8 @@ const Text = ({ canvas }) => {
                   updateActiveText("textAlign", e.target.value);
                 }}
               >
-                <option value="left">Left</option>
                 <option value="center">Center</option>
+                <option value="left">Left</option>
                 <option value="right">Right</option>
               </select>
             </label>
