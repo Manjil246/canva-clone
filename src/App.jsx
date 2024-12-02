@@ -274,7 +274,7 @@ function App() {
                 key={page.id}
                 className={`${activePage === page.id ? "block" : "hidden"} `}
               >
-                {/* <UndoRedo canvas={canvasesRef.current[page.id]} /> */}
+                <UndoRedo canvas={canvasesRef.current[page.id]} />
                 <canvas
                   id={`canvas-${page.id}`}
                   className="border border-black"
