@@ -15,6 +15,7 @@ import Layer from "./components/Layer";
 import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
 import * as fabric from "fabric";
 import UndoRedo from "./components/UndoRedo";
+import BackgroundRemoval from "./components/BackgroundRemoval";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -280,6 +281,7 @@ function App() {
                   className="border border-black"
                 ></canvas>
                 <Guidelines canvas={canvasesRef.current[page.id]} />
+                <BackgroundRemoval canvas={currentCanvas} />
               </div>
             ))}
           </div>
