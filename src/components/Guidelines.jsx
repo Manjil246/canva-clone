@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as fabric from "fabric";
 
-const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
+const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5, changed }) => {
   const [areGuidelinesEnabled, setAreGuidelinesEnabled] = useState(false);
   const [verticalLines, setVerticalLines] = useState([]);
   const [horizontalLines, setHorizontalLines] = useState([]);
@@ -11,13 +11,29 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
     return canvas.getObjects().some((obj) => obj.customType === "guideline");
   };
 
+  useEffect(() => {
+    if (changed) {
+      createGuidelines(false);
+    }
+  }, [changed]);
+
   // Function to create grid lines (vertical and horizontal)
-  const createGridLines = () => {
+  const createGuidelines = (check = true) => {
     // Prevent duplicate gridline creation
-    if (areGridLinesPresent()) return;
+    if (check) {
+      if (areGridLinesPresent()) return;
+    }
+
+    // Remove existing grid lines before adding new ones
+    canvas.getObjects().forEach((obj) => {
+      if (obj.customType === "guideline") {
+        canvas.remove(obj);
+      }
+    });
 
     const width = canvas.getWidth();
     const height = canvas.getHeight();
+    // console.log(width, height);
 
     const newVerticalLines = [];
     const newHorizontalLines = [];
@@ -30,7 +46,7 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
         selectable: false,
         excludeFromExport: true,
         evented: false,
-        opacity: 0, // Initially hidden
+        opacity: areGuidelinesEnabled ? 1 : 0, // Initially hidden
       });
       line.customType = "guideline";
       newVerticalLines.push(line);
@@ -45,7 +61,7 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
         selectable: false,
         excludeFromExport: true,
         evented: false,
-        opacity: 0, // Initially hidden
+        opacity: areGuidelinesEnabled ? 1 : 0, // Initially hidden
       });
       line.customType = "guideline";
       newHorizontalLines.push(line);
@@ -130,11 +146,11 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
   useEffect(() => {
     if (canvas) {
       canvas.on("after:render", () => {
-        if (!areGridLinesPresent()) {
-          createGridLines();
-        }
+        // if (!areGridLinesPresent()) {
+        createGuidelines();
+        // }
       });
-      createGridLines();
+      createGuidelines();
       const anyGuidelineVisible = [...verticalLines, ...horizontalLines].some(
         (line) => line.opacity === 1
       );
@@ -153,3 +169,124 @@ const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
 };
 
 export default Guidelines;
+
+// import React, { useState, useEffect, useRef } from "react";
+// import * as fabric from "fabric";
+
+// const Guidelines = ({ canvas, gridSize = 20, snapThreshold = 5 }) => {
+//   const [areGuidelinesEnabled, setAreGuidelinesEnabled] = useState(false);
+//   const [verticalLines, setVerticalLines] = useState([]);
+//   const [horizontalLines, setHorizontalLines] = useState([]);
+//   const observerRef = useRef(null); // Reference for the ResizeObserver
+
+//   // Function to create grid lines (vertical and horizontal)
+//   const createGuidelines = () => {
+//     if (!canvas) return;
+
+//     // Remove existing guidelines
+//     canvas.getObjects().forEach((obj) => {
+//       if (obj.customType === "guideline") {
+//         canvas.remove(obj);
+//       }
+//     });
+
+//     const width = canvas.getWidth();
+//     const height = canvas.getHeight();
+
+//     const newVerticalLines = [];
+//     const newHorizontalLines = [];
+
+//     // Create vertical lines
+//     for (let i = 0; i < width; i += gridSize) {
+//       const line = new fabric.Line([i, 0, i, height], {
+//         stroke: "gray",
+//         strokeDashArray: [1, 1],
+//         selectable: false,
+//         excludeFromExport: true,
+//         evented: false,
+//         opacity: areGuidelinesEnabled ? 1 : 0,
+//       });
+//       line.customType = "guideline";
+//       newVerticalLines.push(line);
+//       canvas.add(line);
+//     }
+
+//     // Create horizontal lines
+//     for (let j = 0; j < height; j += gridSize) {
+//       const line = new fabric.Line([0, j, width, j], {
+//         stroke: "gray",
+//         strokeDashArray: [1, 1],
+//         selectable: false,
+//         excludeFromExport: true,
+//         evented: false,
+//         opacity: areGuidelinesEnabled ? 1 : 0,
+//       });
+//       line.customType = "guideline";
+//       newHorizontalLines.push(line);
+//       canvas.add(line);
+//     }
+
+//     setVerticalLines(newVerticalLines);
+//     setHorizontalLines(newHorizontalLines);
+
+//     canvas.renderAll(); // Re-render the canvas after adding guidelines
+//   };
+
+//   // Toggle guidelines visibility
+//   const enableGuidelines = () => {
+//     if (!canvas) return;
+
+//     const newVisibility = !areGuidelinesEnabled;
+//     setAreGuidelinesEnabled(newVisibility);
+
+//     verticalLines.forEach((line) => line.set("opacity", newVisibility ? 1 : 0));
+//     horizontalLines.forEach((line) =>
+//       line.set("opacity", newVisibility ? 1 : 0)
+//     );
+
+//     canvas.renderAll();
+//   };
+
+//   // Observe parent resize and adjust canvas
+//   useEffect(() => {
+//     if (!canvas) return;
+
+//     const parentElement = canvas.getElement().parentNode;
+
+//     // ResizeObserver callback
+//     const resizeObserver = new ResizeObserver(() => {
+//       const parentWidth = parentElement.offsetWidth;
+//       const parentHeight = parentElement.offsetHeight;
+
+//       // Update canvas dimensions
+//       canvas.setDimensions({
+//         width: parentWidth,
+//         height: parentHeight,
+//       });
+
+//       // Recreate guidelines after resizing
+//       createGuidelines();
+//     });
+
+//     // Observe the parent element for resizing
+//     resizeObserver.observe(parentElement);
+
+//     // Cleanup observer on unmount
+//     return () => {
+//       resizeObserver.disconnect();
+//     };
+//   }, [canvas, areGuidelinesEnabled]);
+
+//   // Create guidelines initially when canvas is available
+
+//   return (
+//     <button
+//       className="p-2 mt-2 bg-green-500 text-white rounded hover:bg-green-700"
+//       onClick={enableGuidelines}
+//     >
+//       {areGuidelinesEnabled ? "Disable Guidelines" : "Enable Guidelines"}
+//     </button>
+//   );
+// };
+
+// export default Guidelines;

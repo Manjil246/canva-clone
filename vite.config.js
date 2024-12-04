@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    global: {},
+  },
   build: {
     target: "esnext", // Specify modern JavaScript to reduce build complexity
     chunkSizeWarningLimit: 1000, // Increase the warning limit for chunk size

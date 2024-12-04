@@ -15,6 +15,9 @@ import Layer from "./components/Layer";
 import ImageCorrectionSaturation from "./components/ImageCorrectionSaturation";
 import * as fabric from "fabric";
 import UndoRedo from "./components/UndoRedo";
+import UploadImageS3 from "./components/UploadImageS3";
+import { CopyAll } from "@mui/icons-material";
+import CopyPaste from "./components/CopyPaste";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -22,6 +25,8 @@ function App() {
   const [activePage, setActivePage] = useState(1);
   const canvasesRef = useRef({});
   const idRef = useRef(1);
+  const [loaded, setLoaded] = useState(false);
+  const [changed, setChanged] = useState(false);
 
   const debounce = (fn, delay) => {
     let timer;
@@ -30,6 +35,14 @@ function App() {
       timer = setTimeout(() => fn(...args), delay);
     };
   };
+
+  useEffect(() => {
+    if (changed) {
+      setTimeout(() => {
+        setChanged(false);
+      }, 100);
+    }
+  }, []);
 
   const createCanvas = (id) => {
     const canvasElement = document.getElementById(`canvas-${id}`);
@@ -114,7 +127,6 @@ function App() {
   const onImportJSON = (jsonData) => {
     try {
       const parsedData = jsonData; // No need to parse it again as it is already parsed
-
       if (!parsedData || !Array.isArray(parsedData.pages)) {
         alert("Invalid JSON format.");
         return;
@@ -142,6 +154,9 @@ function App() {
             const canvas = canvasesRef.current[newPageId];
             canvas.loadFromJSON(pageData.canvasData, () => {
               canvas.requestRenderAll();
+              if (index === parsedData.pages.length - 1) {
+                setLoaded(true); // Trigger loaded after the last canvas is done
+              }
             });
             canvas.setWidth(pageData.width || 500);
             canvas.setHeight(pageData.height || 500);
@@ -155,6 +170,14 @@ function App() {
       console.error("Failed to import JSON:", error);
     }
   };
+
+  useEffect(() => {
+    if (loaded) {
+      setTimeout(() => {
+        setLoaded(false);
+      }, 500);
+    }
+  }, [loaded]);
 
   const handleDeletePage = (id) => {
     if (pages.length === 1) {
@@ -202,6 +225,7 @@ function App() {
       <div className="flex flex-col">
         {/* Top Toolbar */}
         <div className="flex flex-wrap justify-between p-2 bg-white shadow-md">
+          {/* <CopyPaste canvas={currentCanvas} /> */}
           <Shadow canvas={currentCanvas} />
           <div className="flex flex-col">
             <Border canvas={currentCanvas} />
@@ -210,7 +234,11 @@ function App() {
           <Text canvas={currentCanvas} />
           <div className="flex flex-col">
             <Image canvas={currentCanvas} />
-            <AspectRatio canvasesRef={canvasesRef} pages={pages} />
+            <AspectRatio
+              canvasesRef={canvasesRef}
+              pages={pages}
+              setChanged={setChanged}
+            />
           </div>
           <div className="flex flex-col">
             <Line canvas={currentCanvas} />
@@ -274,18 +302,25 @@ function App() {
                 key={page.id}
                 className={`${activePage === page.id ? "block" : "hidden"} `}
               >
-                <UndoRedo canvas={canvasesRef.current[page.id]} />
+                <UndoRedo
+                  canvas={canvasesRef.current[page.id]}
+                  loaded={loaded}
+                />
                 <canvas
                   id={`canvas-${page.id}`}
                   className="border border-black"
                 ></canvas>
-                <Guidelines canvas={canvasesRef.current[page.id]} />
+                <Guidelines
+                  canvas={canvasesRef.current[page.id]}
+                  changed={changed}
+                />
               </div>
             ))}
           </div>
 
           {/* Additional Tools */}
           <div className="flex flex-col justify-start gap-4 mt-8">
+            <UploadImageS3 canvas={currentCanvas} />
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>
