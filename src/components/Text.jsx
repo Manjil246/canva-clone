@@ -79,25 +79,25 @@ const Text = ({ canvas }) => {
   const updateActiveText = (property, value) => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === "textbox") {
-      if (property === "fontFamily") {
-        // Load the font using Web Font Loader
-        WebFont.load({
-          google: {
-            families: [value], // Font family to load
-          },
-          active: () => {
-            // Font is loaded, apply it to the canvas object
-            activeObject.set(property, value);
-            canvas.renderAll();
-          },
-          inactive: () => {
-            console.error(`Failed to load the font: ${value}`);
-          },
-        });
-      } else {
-        activeObject.set(property, value);
-        canvas.renderAll();
-      }
+      // if (property === "fontFamily") {
+      //   // Load the font using Web Font Loader
+      //   WebFont.load({
+      //     google: {
+      //       families: [value], // Font family to load
+      //     },
+      //     active: () => {
+      //       // Font is loaded, apply it to the canvas object
+      //       activeObject.set(property, value);
+      //       canvas.renderAll();
+      //     },
+      //     inactive: () => {
+      //       console.error(`Failed to load the font: ${value}`);
+      //     },
+      //   });
+      // } else {
+      activeObject.set(property, value);
+      canvas.renderAll();
+      // }
     }
   };
 
