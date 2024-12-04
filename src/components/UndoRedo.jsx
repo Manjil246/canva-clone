@@ -1,33 +1,32 @@
 import { RedoRounded, UndoRounded } from "@mui/icons-material";
 import React, { useState, useEffect, useRef } from "react";
 
-const UndoRedo = ({ canvas }) => {
+const UndoRedo = ({ canvas, loaded, threshold = 5 }) => {
   const [undoStack, setUndoStack] = useState([]); // Stack to hold undo states
   const [redoStack, setRedoStack] = useState([]); // Stack to hold redo states
   const isUndoRedoAction = useRef(false); // Prevent state saving during undo/redo
   const initialRender = useRef(true);
 
-  const saveEvent = (e) => saveState(e.target);
+  console.log("undoStack", undoStack);
+  console.log("redoStack", redoStack);
 
-  const disableCanvasEvents = () => {
-    if (canvas) {
-      canvas.off("object:modified");
-      canvas.off("object:added");
-      canvas.off("object:removed");
-    }
+  // console.log(loaded);
+
+  const saveEvent = (e) => {
+    if (e.target.customType === "guideline") return;
+    saveState();
   };
 
-  const enableCanvasEvents = () => {
-    if (canvas) {
-      canvas.on("object:modified", saveEvent);
-      canvas.on("object:added", saveEvent);
-      canvas.on("object:removed", saveEvent);
-    }
+  const debounce = (fn, delay) => {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
   };
 
   // Save the current state of the canvas to the undo stack
-  const saveState = (object) => {
-    if (object.customType === "guideline") return;
+  const saveState = debounce(() => {
     if (isUndoRedoAction.current) {
       isUndoRedoAction.current = false;
       return;
@@ -39,67 +38,104 @@ const UndoRedo = ({ canvas }) => {
       setUndoStack((prev) => [...prev, currentState]);
       setRedoStack([]); // Clear redo stack whenever a new action is performed
     }
-  };
+  }, 300);
 
   // Handle undo action
   const handleUndo = () => {
-    if (undoStack.length > 0) {
-      const currentState = canvas.toJSON();
-      const previousState = undoStack[undoStack.length - 1];
+    if (undoStack.length > 1) {
+      const redoState = undoStack[undoStack.length - 1];
+      const stateToBeLoaded = undoStack[undoStack.length - 2];
 
       isUndoRedoAction.current = true; // Mark as undo/redo action
       setUndoStack((prev) => prev.slice(0, -1)); // Remove the last state from undo stack
-      setRedoStack((prev) => [currentState, ...prev]); // Push current state to redo stack
+      setRedoStack((prev) => [...prev, redoState]); // Push current state to redo stack
 
-      loadCanvas(previousState);
+      loadCanvas(stateToBeLoaded);
+    }
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === "z") {
+        e.preventDefault(); // Prevent default browser undo behavior
+        handleUndo(); // Call undo function
+      }
+      if (e.ctrlKey && e.key === "y") {
+        e.preventDefault(); // Prevent default browser redo behavior
+        handleRedo(); // Call redo function
+      }
+    };
+
+    // Add event listener for keydown events
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [undoStack, redoStack]);
+
+  // Handle redo action
+  const handleRedo = () => {
+    if (redoStack.length > 0) {
+      const undoState = redoStack[redoStack.length - 1];
+      const stateToBeLoaded = redoStack[redoStack.length - 1];
+
+      // disableCanvasEvents();
+
+      isUndoRedoAction.current = true; // Mark as undo/redo action
+      setUndoStack((prev) => [...prev, undoState]); // Push current state to undo stack
+      setRedoStack((prev) => prev.slice(0, -1)); // Remove the first state from redo stack
+
+      loadCanvas(stateToBeLoaded);
     }
   };
 
   const loadCanvas = (state) => {
     if (canvas) {
-      disableCanvasEvents();
-      canvas.clear();
-      canvas.requestRenderAll();
-      canvas.loadFromJSON(state, async () => {
-        await canvas.requestRenderAll();
-        enableCanvasEvents();
-      });
+      // canvas.clear();
+
+      canvas.loadFromJSON(
+        state,
+        () => {
+          canvas.renderOnAddRemove = true;
+          // canvas.renderAll(); // Ensure the canvas is fully rendered
+          // enableCanvasEvents();
+          requestAnimationFrame(() => canvas.renderAll());
+        },
+        (error) => {
+          console.error("Error loading canvas state:", error);
+        }
+      );
     }
   };
 
-  // Handle redo action
-  const handleRedo = () => {
-    if (redoStack.length > 0) {
-      const currentState = canvas.toJSON();
-      const nextState = redoStack[0];
-
-      disableCanvasEvents();
-
-      isUndoRedoAction.current = true; // Mark as undo/redo action
-      setRedoStack((prev) => prev.slice(1)); // Remove the first state from redo stack
-      setUndoStack((prev) => [...prev, currentState]); // Push current state to undo stack
-
-      loadCanvas(nextState);
-    }
-  };
-
-  // Save the canvas state when an object is added, modified, or removed
   useEffect(() => {
-    if (canvas && initialRender.current) {
-      initialRender.current = false;
+    if (!canvas) return;
 
-      canvas.on("object:modified", saveEvent);
-      canvas.on("object:added", saveEvent);
-      canvas.on("object:removed", saveEvent);
-      saveState({ customType: "notGuideline" });
+    const saveEvent = (e) => {
+      if (e?.target?.customType !== "guideline") saveState();
+    };
 
-      return () => {
-        canvas.off("object:modified", saveEvent);
-        canvas.off("object:added", saveEvent);
-        canvas.off("object:removed", saveEvent);
-      };
+    // Attach event listeners to save canvas state
+    canvas.on("object:modified", saveEvent);
+    canvas.on("object:added", saveEvent);
+    canvas.on("object:removed", saveEvent);
+
+    // Save initial state
+    if (loaded) {
+      setUndoStack([canvas.toJSON()]);
+      setRedoStack([]);
+    } else if (undoStack.length === 0) {
+      setUndoStack([canvas.toJSON()]);
     }
-  }, [canvas]);
+
+    return () => {
+      canvas.off("object:modified", saveEvent);
+      canvas.off("object:added", saveEvent);
+      canvas.off("object:removed", saveEvent);
+    };
+  }, [canvas, loaded]);
 
   return (
     <div className="flex justify-around w-20 bg-slate-500 p-2 rounded-lg mb-1">
@@ -127,31 +163,3 @@ const UndoRedo = ({ canvas }) => {
 };
 
 export default UndoRedo;
-
-// const loadCanvas = async (state) => {
-//   if (canvas) {
-//     disableCanvasEvents();
-//     canvas.clear();
-
-//     try {
-//       // Wait for the canvas to load the JSON state
-//       await new Promise((resolve, reject) => {
-//         canvas.loadFromJSON(
-//           state,
-//           () => {
-//             resolve(); // Resolve the promise once the canvas has finished loading
-//           },
-//           (error) => reject(error)
-//         );
-//       });
-
-//       await canvas.requestRenderAll(); // Render the canvas after it's fully loaded
-//     } catch (error) {
-//       console.error("Error loading canvas state:", error);
-//     } finally {
-//       enableCanvasEvents();
-//       console.log("undoStack", undoStack);
-//       console.log("redoStack", redoStack);
-//     }
-//   }
-// };

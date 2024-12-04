@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const AspectRatio = ({ pages, canvasesRef }) => {
+const AspectRatio = ({ pages, canvasesRef, setChanged }) => {
   const [width, setWidth] = useState(500);
   const [height, setHeight] = useState(500);
 
@@ -11,6 +11,7 @@ const AspectRatio = ({ pages, canvasesRef }) => {
         canvas.setWidth(width);
         canvas.setHeight(height);
         canvas.requestRenderAll();
+        setChanged(true);
       }
     });
   };
