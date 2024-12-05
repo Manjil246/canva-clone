@@ -7,15 +7,15 @@ const UndoRedo = ({ canvas, loaded, threshold = 5 }) => {
   const isUndoRedoAction = useRef(false); // Prevent state saving during undo/redo
   const initialRender = useRef(true);
 
-  console.log("undoStack", undoStack);
-  console.log("redoStack", redoStack);
+  // console.log("undoStack", undoStack);
+  // console.log("redoStack", redoStack);
 
   // console.log(loaded);
 
-  const saveEvent = (e) => {
-    if (e.target.customType === "guideline") return;
-    saveState();
-  };
+  // const saveEvent = (e) => {
+  //   if (e.target.customType === "guideline") return;
+  //   saveState();
+  // };
 
   const debounce = (fn, delay) => {
     let timer;
