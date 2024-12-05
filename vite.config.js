@@ -6,9 +6,12 @@ export default defineConfig({
   define: {
     global: {},
   },
-  build: {
-    rollupOptions: {
-      external: ["aws-sdk"],
-    },
-  },
+  // optimizeDeps: {
+  //   include: ["aws-sdk"],
+  // },
+  // build: {
+  //   rollupOptions: {
+  //     external: ["aws-sdk"],
+  //   },
+  // },
 });
