@@ -20,8 +20,17 @@ function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
   const [pages, setPages] = useState([{ id: 1 }]);
   const [activePage, setActivePage] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState(1); // Added zoom state
   const canvasesRef = useRef({});
   const idRef = useRef(1);
+
+  const zoomStep = 0.1; // Increment for zooming in/out
+  const minZoom = 0.5; // Minimum zoom level
+  const maxZoom = 3; // Maximum zoom level
+
+  const [isPanning, setIsPanning] = useState(false);
+  const [lastPosX, setLastPosX] = useState(0);
+  const [lastPosY, setLastPosY] = useState(0);
 
   const debounce = (fn, delay) => {
     let timer;
@@ -31,16 +40,79 @@ function App() {
     };
   };
 
+  const handleMouseWheelZoom = (canvas) => {
+    const maxZoom = 3; // Maximum zoom level
+    const minZoom = 0.5; // Minimum zoom level
+    const zoomStep = 0.1; // Step for zooming in/out
+
+    canvas.on("mouse:wheel", (opt) => {
+      const event = opt.e;
+      const delta = event.deltaY; // Get the scroll direction
+      let zoom = canvas.getZoom(); // Get the current zoom level
+
+      // Update the zoom level based on scroll direction
+      zoom = delta > 0 ? zoom - zoomStep : zoom + zoomStep;
+
+      // Clamp the zoom level between minZoom and maxZoom
+      zoom = Math.max(minZoom, Math.min(maxZoom, zoom));
+
+      // Get the pointer position to zoom into
+      const pointer = canvas.getPointer(event);
+
+      // Zoom to the pointer position
+      canvas.zoomToPoint({ x: pointer.x, y: pointer.y }, zoom);
+
+      // Prevent default scrolling behavior
+      event.preventDefault();
+      event.stopPropagation();
+    });
+  };
+
+  const enablePanning = (canvas) => {
+    let isDragging = false;
+    let lastPosX, lastPosY;
+
+    canvas.on("mouse:down", (event) => {
+      isDragging = true;
+      const pointer = canvas.getPointer(event.e);
+      lastPosX = pointer.x;
+      lastPosY = pointer.y;
+      canvas.setCursor("grab");
+    });
+
+    canvas.on("mouse:move", (event) => {
+      if (!isDragging) return;
+
+      const pointer = canvas.getPointer(event.e);
+      const deltaX = pointer.x - lastPosX;
+      const deltaY = pointer.y - lastPosY;
+
+      canvas.relativePan({ x: deltaX, y: deltaY });
+
+      lastPosX = pointer.x;
+      lastPosY = pointer.y;
+    });
+
+    canvas.on("mouse:up", () => {
+      isDragging = false;
+      canvas.setCursor("default");
+    });
+
+    // Prevent interaction with objects during panning
+    canvas.on("mouse:down", (event) => {
+      const activeObject = canvas.getActiveObject();
+      if (!activeObject) return;
+      isDragging = false; // Disable panning if an object is active
+    });
+  };
+
   const createCanvas = (id) => {
     const canvasElement = document.getElementById(`canvas-${id}`);
-
     if (canvasElement) {
-      // Dispose of the existing canvas instance if it exists
       if (canvasesRef.current[id]) {
         canvasesRef.current[id].dispose();
       }
 
-      // Create a new canvas instance and store it
       const newCanvas = new fabric.Canvas(canvasElement, {
         width: canvasesRef.current[pages[0]?.id]?.width || 800,
         height: canvasesRef.current[pages[0]?.id]?.height || 500,
@@ -52,23 +124,19 @@ function App() {
           const activeObjects = newCanvas.getActiveObjects();
           if (activeObjects && activeObjects.length > 0) {
             activeObjects.forEach((obj) => {
-              // Prevent deletion if the object is a Text and is in editing mode
               if (obj.isEditing && obj.type === "textbox") {
                 return;
               }
               newCanvas.remove(obj);
             });
-            newCanvas.discardActiveObject(); // Clear the active selection
+            newCanvas.discardActiveObject();
             newCanvas.renderAll();
           }
         }
       };
 
       const updatePreview = debounce(() => {
-        const dataUrl = newCanvas.toDataURL({
-          format: "png",
-          multiplier: 0.2, // Scale down for smaller thumbnails
-        });
+        const dataUrl = newCanvas.toDataURL({ format: "png", multiplier: 0.2 });
         setPages((prevPages) =>
           prevPages.map((page) =>
             page.id === id ? { ...page, preview: dataUrl } : page
@@ -76,19 +144,15 @@ function App() {
         );
       }, 500);
 
-      // Attach the event listener
       document.addEventListener("keydown", handleKeyDown);
 
-      // Attach event listeners for real-time updates
       newCanvas.on("object:modified", updatePreview);
       newCanvas.on("object:added", updatePreview);
       newCanvas.on("canvas:render", updatePreview);
       newCanvas.on("object:removed", updatePreview);
 
-      // Generate the initial preview
       updatePreview();
 
-      // Cleanup event listener when the canvas is disposed
       newCanvas.dispose = (() => {
         const originalDispose = newCanvas.dispose.bind(newCanvas);
         return () => {
@@ -97,9 +161,59 @@ function App() {
         };
       })();
 
+      // Attach mouse wheel zoom functionality
+      // handleMouseWheelZoom(newCanvas);
+
       canvasesRef.current[id] = newCanvas;
-      setCurrentCanvas(newCanvas); // Set the new canvas as the current canvas
+      setCurrentCanvas(newCanvas);
+
+      enablePanning(newCanvas);
     }
+  };
+
+  const zoomToObject = (canvas, object) => {
+    // Skip zooming if the clicked object is an image
+    if (object && object.type === "image") {
+      return;
+    }
+
+    // Get the zoom level and center the canvas around the clicked object
+    const zoom = Math.min(maxZoom, canvas.getZoom() + zoomStep); // Increment zoom level
+    setZoomLevel(zoom);
+
+    // Get the object's center point
+    const objCenter = object.getCenterPoint();
+
+    // Zoom to the object's center point
+    canvas.zoomToPoint(objCenter, zoom);
+
+    // Adjust the canvas container's scroll position
+    const canvasContainer = document.querySelector(".canvas-container");
+    const containerRect = canvasContainer.getBoundingClientRect();
+
+    // Calculate the zoomed canvas dimensions
+    const zoomedWidth = canvas.width * zoom;
+    const zoomedHeight = canvas.height * zoom;
+
+    // Ensure the canvas doesn't go out of the container's bounds
+    const scrollLeft = Math.max(
+      0,
+      objCenter.x * zoom - containerRect.width / 2
+    );
+    const scrollTop = Math.max(
+      0,
+      objCenter.y * zoom - containerRect.height / 2
+    );
+
+    // Allow scrolling but make sure it doesn't go beyond the zoomed content
+    canvasContainer.scrollLeft = Math.min(
+      scrollLeft,
+      zoomedWidth - containerRect.width
+    );
+    canvasContainer.scrollTop = Math.min(
+      scrollTop,
+      zoomedHeight - containerRect.height
+    );
   };
 
   useEffect(() => {
@@ -110,6 +224,52 @@ function App() {
       });
     };
   }, []);
+
+  const handleZoom = (direction) => {
+    if (!currentCanvas) return;
+
+    let zoom = currentCanvas.getZoom();
+
+    // Calculate new zoom level
+    if (direction === "in") {
+      zoom = Math.min(maxZoom, zoom + zoomStep);
+    } else if (direction === "out") {
+      zoom = Math.max(minZoom, zoom - zoomStep);
+    }
+
+    setZoomLevel(zoom);
+
+    // Get the original dimensions
+    const originalWidth = currentCanvas.originalWidth || currentCanvas.width;
+    const originalHeight = currentCanvas.originalHeight || currentCanvas.height;
+
+    // Calculate new dimensions
+    const newWidth = originalWidth * zoom;
+    const newHeight = originalHeight * zoom;
+
+    // Update canvas dimensions
+    currentCanvas.setWidth(newWidth);
+    currentCanvas.setHeight(newHeight);
+
+    // Set the zoom level for fabric.js objects
+    currentCanvas.setZoom(zoom);
+
+    // Ensure the canvas container allows scrolling
+    const canvasContainer = document.querySelector(".canvas-container-wrapper");
+    if (canvasContainer) {
+      canvasContainer.style.overflow = "auto"; // Enable scrollbars
+      canvasContainer.style.width = `${newWidth}px`;
+      canvasContainer.style.height = `${newHeight}px`;
+
+      // Adjust scroll position to center
+      canvasContainer.scrollLeft = (newWidth - canvasContainer.offsetWidth) / 2;
+      canvasContainer.scrollTop =
+        (newHeight - canvasContainer.offsetHeight) / 2;
+    }
+
+    // Ensure all changes are rendered
+    currentCanvas.requestRenderAll();
+  };
 
   const onImportJSON = (jsonData) => {
     try {
@@ -192,12 +352,25 @@ function App() {
     }
     setActivePage(id);
     setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
+    setZoomLevel(1); // Reset zoom level for the new page
   };
+
+  useEffect(() => {
+    createCanvas(1); // Initialize the first canvas
+    return () => {
+      // Cleanup all canvases on component unmount
+      Object.values(canvasesRef.current).forEach((canvasInstance) => {
+        canvasInstance.dispose();
+      });
+    };
+  }, []);
 
   return (
     <div
       className="font-serif min-h-screen h-full flex flex-col"
-      style={{ background: "linear-gradient(to bottom, #B2CCFF, #ffffff)" }}
+      style={{
+        background: "linear-gradient(to bottom, #B2CCFF, #ffffff)",
+      }}
     >
       <div className="flex flex-col">
         {/* Top Toolbar */}
@@ -220,6 +393,11 @@ function App() {
               onImportJSON={onImportJSON}
             />
             <Shapes canvas={currentCanvas} />
+            <div className="zoom-toolbar">
+              <button onClick={() => handleZoom("in")}>Zoom In</button>
+              <button onClick={() => handleZoom("out")}>Zoom Out</button>
+              <span>Zoom: {Math.round(zoomLevel * 100)}%</span>
+            </div>
           </div>
         </div>
 
@@ -273,13 +451,29 @@ function App() {
               <div
                 key={page.id}
                 className={`${activePage === page.id ? "block" : "hidden"} `}
+                style={{
+                  position: "relative",
+                }}
               >
-                {/* <UndoRedo canvas={canvasesRef.current[page.id]} /> */}
-                <canvas
-                  id={`canvas-${page.id}`}
-                  className="border border-black"
-                ></canvas>
-                <Guidelines canvas={canvasesRef.current[page.id]} />
+                <div
+                  className="canvas-container-wrapper"
+                  id={`canvas-wrapper-${page.id}`}
+                  style={{
+                    width: canvasesRef.current[page.id]?.width || "800px",
+                    height: canvasesRef.current[page.id]?.height || "500px",
+                  }}
+                >
+                  {/* <UndoRedo canvas={canvasesRef.current[page.id]} /> */}
+                  <canvas
+                    id={`canvas-${page.id}`}
+                    style={{
+                      position: "relative",
+                      transformOrigin: "0 0",
+                      transform: `scale(${zoomLevel})`,
+                    }}
+                  ></canvas>
+                  <Guidelines canvas={canvasesRef.current[page.id]} />
+                </div>
               </div>
             ))}
           </div>
