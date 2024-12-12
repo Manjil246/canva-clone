@@ -18,6 +18,7 @@ import UndoRedo from "./components/UndoRedo";
 import UploadImageS3 from "./components/UploadImageS3";
 import { CopyAll } from "@mui/icons-material";
 import CopyPaste from "./components/CopyPaste";
+import ImageBackgroundRemoval from "./components/ImageBackgroundRemoval";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -510,6 +511,8 @@ function App() {
 
           {/* Additional Tools */}
           <div className="flex flex-col justify-start gap-4 mt-8">
+            <ImageBackgroundRemoval canvas={currentCanvas} />
+
             <UploadImageS3 canvas={currentCanvas} />
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
