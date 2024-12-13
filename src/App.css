@@ -18,17 +18,3 @@
   padding: 5px;
   cursor: pointer;
 }
-
-.canvas-container {
-  position: relative;
-  overflow: auto;
-  width: 100%;
-  height: 100%; /* Adjust as needed */
-  margin: 0 auto;
-  display: block;
-}
-
-.canvas-container canvas {
-  width: 100%; /* This remains fixed for layout */
-  height: 100%;
-}
