@@ -18,3 +18,8 @@
   padding: 5px;
   cursor: pointer;
 }
+
+@font-face {
+  font-family: 'Madina';
+  src: url('./assets/fonts/madina.ttf') format('truetype');
+}

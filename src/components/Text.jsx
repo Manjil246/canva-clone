@@ -4,6 +4,7 @@ import axios from "axios";
 import WebFont from "webfontloader";
 import TextWithEdits from "./TextWithEdits";
 import Dialog from "../utils/Dialog";
+import { googleFonts } from "../constants/googleFonts";
 
 const Text = ({ canvas }) => {
   const [isTextSelected, setIsTextSelected] = useState(false);
@@ -46,20 +47,68 @@ const Text = ({ canvas }) => {
   useEffect(() => {
     const fetchFonts = async () => {
       try {
-        // Example: Fetch Google Fonts or use a static list
-        const response = await axios.get(
-          "https://www.googleapis.com/webfonts/v1/webfonts?key=AIzaSyChVtk1O-m1sCVqnSBVrLBXh89H-bQCvvw"
-        );
-        const fontList = response.data.items
-          .map((font) => font.family)
-          .splice(0, 500);
+        // System and custom fonts
+        const customFonts = [
+          "Times New Roman",
+          "Arial",
+          "Assistant",
+          "Avenir",
+          "Bahnschrift",
+          "Baskerville",
+          "Bodoni",
+          "Bookman Old Style",
+          "Calibri",
+          "Century Gothic",
+          "Covington",
+          "Franklin Gothic",
+          "Garamond",
+          "Georgia",
+          "Gill Sans MT",
+          "Harrington",
+          "Impact",
+          "Khand",
+          "Kunstler Script",
+          "Lato",
+          "Lucida Fax",
+          "Malgun Gothic",
+          "Palatino Linotype",
+          "Perpetua",
+          "Nirmala UI",
+          "Rockwell",
+          "Segoe UI",
+          "Sitka Banner",
+          "Stencil",
+          "Tahoma",
+          "Yu Gothic",
+          "Playfair Display",
+          "Montserrat",
+          "Roboto",
+          "Merriweather",
+          "Spectral",
+          "Lexend",
+          "Lora",
+          "Nunito",
+          "Oswald",
+          "Verdana",
+          "Madina",
+          "Parisienne",
+          "Darleston",
+          "Caviar Dreams",
+          "Gontserrat",
+          "Ragna",
+          "Code"
+        ];
+
+        const fontList = googleFonts; // Get the first 500 fonts
+
+        const allFonts = [...fontList, ...customFonts].sort();
 
         WebFont.load({
           google: {
-            families: [...fontList],
+            families: allFonts,
           },
           active: () => {
-            setFonts(fontList);
+            setFonts(allFonts);
             setLoading(false);
           },
           inactive: () => {
@@ -116,7 +165,7 @@ const Text = ({ canvas }) => {
         const effectiveFontSize =
           Math.ceil(
             activeObject.fontSize *
-              Math.min(activeObject.scaleY, activeObject.scaleX)
+            Math.min(activeObject.scaleY, activeObject.scaleX)
           ) || 20;
         setTextValue(activeObject.text || "");
         setFontSize(effectiveFontSize);
@@ -337,9 +386,8 @@ const Text = ({ canvas }) => {
 
           <div className="flex">
             <button
-              className={`px-4 py-2 border rounded mr-2 font-bold ${
-                fontWeight === "bold" ? "bg-gray-300" : ""
-              }`}
+              className={`px-4 py-2 border rounded mr-2 font-bold ${fontWeight === "bold" ? "bg-gray-300" : ""
+                }`}
               onClick={() => {
                 const newWeight = fontWeight === "bold" ? "normal" : "bold";
                 setFontWeight(newWeight);
@@ -350,9 +398,8 @@ const Text = ({ canvas }) => {
             </button>
 
             <button
-              className={`px-4 py-2 border rounded mr-2 italic ${
-                fontStyle === "italic" ? "bg-gray-300" : ""
-              }`}
+              className={`px-4 py-2 border rounded mr-2 italic ${fontStyle === "italic" ? "bg-gray-300" : ""
+                }`}
               onClick={() => {
                 const newStyle = fontStyle === "italic" ? "normal" : "italic";
                 setFontStyle(newStyle);
@@ -363,9 +410,8 @@ const Text = ({ canvas }) => {
             </button>
 
             <button
-              className={`px-4 py-2 border rounded mr-2 underline ${
-                textDecoration === "underline" ? "bg-gray-300" : ""
-              }`}
+              className={`px-4 py-2 border rounded mr-2 underline ${textDecoration === "underline" ? "bg-gray-300" : ""
+                }`}
               onClick={() => {
                 const isUnderline = textDecoration === "underline";
                 setTextDecoration(isUnderline ? "" : "underline");

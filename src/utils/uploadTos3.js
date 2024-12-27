@@ -68,9 +68,8 @@ export const uploadImage = async (key, file) => {
 
     return {
       key,
-      url: `https://${bucketName}.s3.${
-        import.meta.env.VITE_AWS_REGION
-      }.amazonaws.com/${key}`,
+      url: `https://${bucketName}.s3.${import.meta.env.VITE_AWS_REGION
+        }.amazonaws.com/${key}`,
     };
   } catch (error) {
     console.error("S3 upload error:", error);
@@ -81,3 +80,6 @@ export const uploadImage = async (key, file) => {
 export const getKeyForS3DesignerPage = (fileName) => {
   return `templates/${fileName}`;
 };
+
+export const getImageLink = (url) =>
+  `${import.meta.env.VITE_CLOUD_FRONT_URL}${url.substring(url.indexOf(".com/") + 5)}`;
