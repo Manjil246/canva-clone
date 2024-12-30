@@ -78,7 +78,6 @@ const BackgroundRemove = ({ canvas }) => {
 
     return (
         <div className="upload-container flex flex-col gap-4">
-            {/* Upload Button */}
             <label className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow-md cursor-pointer transition">
                 {loadingImage ? "Processing..." : "Remove Background"}
                 <input
@@ -90,7 +89,6 @@ const BackgroundRemove = ({ canvas }) => {
                 />
             </label>
 
-            {/* Uploaded Images */}
             <div className="flex flex-wrap gap-4 h-[300px] overflow-y-scroll scroller">
                 {images.map((imageUrl, index) => (
                     <div
