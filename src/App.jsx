@@ -18,6 +18,7 @@ import UndoRedo from "./components/UndoRedo";
 import UploadImageS3 from "./components/UploadImageS3";
 import { CopyAll } from "@mui/icons-material";
 import CopyPaste from "./components/CopyPaste";
+import BackgroundRemove from "./components/BackgroundRemove";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -261,15 +262,14 @@ function App() {
             >
               Add Page
             </button>
-            <div className="flex flex-col space-y-4 overflow-auto h-[50vh] scroller">
+            <div className="flex flex-col space-y-4 overflow-auto max-h-[50vh] scroller">
               {pages.map((page, index) => (
                 <div
                   key={page.id}
-                  className={`relative border rounded-md cursor-pointer ${
-                    activePage === page.id
-                      ? "border-blue-500"
-                      : "border-gray-300 hover:border-blue-300"
-                  }`}
+                  className={`relative border rounded-md cursor-pointer ${activePage === page.id
+                    ? "border-blue-500"
+                    : "border-gray-300 hover:border-blue-300"
+                    }`}
                   onClick={() => handleSwitchPage(page.id)}
                 >
                   {/* Thumbnail Preview */}
@@ -293,6 +293,8 @@ function App() {
                 </div>
               ))}
             </div>
+
+            <BackgroundRemove canvas={currentCanvas} />
           </div>
 
           {/* Canvas Section */}
