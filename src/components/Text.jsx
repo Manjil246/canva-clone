@@ -99,9 +99,9 @@ const Text = ({ canvas }) => {
           "Code"
         ];
 
-        const fontList = googleFonts; // Get the first 500 fonts
+        const fontList = googleFonts.splice(0, 500); // Get the first 500 fonts
 
-        const allFonts = [...fontList, ...customFonts].sort();
+        const allFonts = [...fontList, ...customFonts];
 
         WebFont.load({
           google: {

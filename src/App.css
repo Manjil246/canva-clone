@@ -23,3 +23,13 @@
   font-family: 'Madina';
   src: url('./assets/fonts/madina.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'Caviar Dreams';
+  src: url('./assets/fonts/caviar-dreams.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Darleston';
+  src: url('./assets/fonts/Darleston.otf') format('truetype');
+}
