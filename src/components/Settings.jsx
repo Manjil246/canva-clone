@@ -32,10 +32,16 @@ const Settings = ({ canvas }) => {
   const handleObjectSelection = (object) => {
     if (!object) return;
 
+    console.log(object);
+
     setSelectedObject(object);
     setOpacity(object.opacity);
 
-    if (object.type === "rect" || object.type === "triangle") {
+    if (
+      object.type === "rect" ||
+      object.type === "triangle" ||
+      object.customType === "shape"
+    ) {
       setWidth(Math.round(object.width * object.scaleX));
       setHeight(Math.round(object.height * object.scaleY));
       setColor(object.fill);

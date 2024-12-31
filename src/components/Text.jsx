@@ -46,90 +46,105 @@ const Text = ({ canvas }) => {
 
   const fetchFonts = async () => {
     try {
-      setLoading(true);
-      const loadBatch = (fonts,index) => {
-        return new Promise((resolve, reject) => {
-          WebFont.load({
-            google: {
-              families: fonts,
-            },
-            active: () => {
-              console.log("Batch loaded successfully:", index);
-              resolve();
-            },
-            inactive: (error) => {
-              console.error("Batch loading failed:", error);
-              reject(error);
-            },
-          });
-        });
-      };
+    // Load Google Fonts using Web Font Loader
+    //   setLoading(true);
+    //   const loadBatch = (fonts,index) => {
+    //     return new Promise((resolve, reject) => {
+    //       WebFont.load({
+    //         google: {
+    //           families: fonts,
+    //         },
+    //         active: () => {
+    //           console.log("Batch loaded successfully:", index);
+    //           resolve();
+    //         },
+    //         inactive: (error) => {
+    //           console.error("Batch loading failed:", error);
+    //           reject(error);
+    //         },
+    //       });
+    //     });
+    //   };
   
-      // Split fonts into batches
-      const batch1 = googleFonts.slice(0, 600);
-      const batch2 = googleFonts.slice(600, 1200);
-      const batch3 = googleFonts.slice(1200);
+    //   // Split fonts into batches
+    //   const batch1 = googleFonts.slice(0, 600);
+    //   const batch2 = googleFonts.slice(600, 1200);
+    //   const batch3 = googleFonts.slice(1200);
   
-      // Load batches in series
-      await loadBatch(batch1,1);
-      await loadBatch(batch2,2);
-      await loadBatch(batch3,3);
+    //   // Load batches in series
+    //   await loadBatch(batch1,1);
+    //   await loadBatch(batch2,2);
+    //   await loadBatch(batch3,3);
   
-      // Add custom fonts after Google Fonts
-      const customFonts = [
-        "Times New Roman",
-        "Arial",
-        "Assistant",
-        "Avenir",
-        "Bahnschrift",
-        "Baskerville",
-        "Bodoni",
-        "Bookman Old Style",
-        "Calibri",
-        "Century Gothic",
-        "Covington",
-        "Franklin Gothic",
-        "Garamond",
-        "Georgia",
-        "Gill Sans MT",
-        "Harrington",
-        "Impact",
-        "Khand",
-        "Kunstler Script",
-        "Lato",
-        "Lucida Fax",
-        "Malgun Gothic",
-        "Palatino Linotype",
-        "Perpetua",
-        "Nirmala UI",
-        "Rockwell",
-        "Segoe UI",
-        "Sitka Banner",
-        "Stencil",
-        "Tahoma",
-        "Yu Gothic",
-        "Playfair Display",
-        "Montserrat",
-        "Roboto",
-        "Merriweather",
-        "Spectral",
-        "Lexend",
-        "Lora",
-        "Nunito",
-        "Oswald",
-        "Verdana",
-        "Madina",
-        "Parisienne",
-        "Darleston",
-        "Caviar Dreams",
-        "Gontserrat",
-        "Ragna",
-        "Code",
-      ];
+    //   // Add custom fonts after Google Fonts
+    //   const customFonts = [
+    //     "Times New Roman",
+    //     "Arial",
+    //     "Assistant",
+    //     "Avenir",
+    //     "Bahnschrift",
+    //     "Baskerville",
+    //     "Bodoni",
+    //     "Bookman Old Style",
+    //     "Calibri",
+    //     "Century Gothic",
+    //     "Covington",
+    //     "Franklin Gothic",
+    //     "Garamond",
+    //     "Georgia",
+    //     "Gill Sans MT",
+    //     "Harrington",
+    //     "Impact",
+    //     "Khand",
+    //     "Kunstler Script",
+    //     "Lato",
+    //     "Lucida Fax",
+    //     "Malgun Gothic",
+    //     "Palatino Linotype",
+    //     "Perpetua",
+    //     "Nirmala UI",
+    //     "Rockwell",
+    //     "Segoe UI",
+    //     "Sitka Banner",
+    //     "Stencil",
+    //     "Tahoma",
+    //     "Yu Gothic",
+    //     "Playfair Display",
+    //     "Montserrat",
+    //     "Roboto",
+    //     "Merriweather",
+    //     "Spectral",
+    //     "Lexend",
+    //     "Lora",
+    //     "Nunito",
+    //     "Oswald",
+    //     "Verdana",
+    //     "Madina",
+    //     "Parisienne",
+    //     "Darleston",
+    //     "Caviar Dreams",
+    //     "Gontserrat",
+    //     "Ragna",
+    //     "Code",
+    //   ];
   
-      const allFonts = [...googleFonts, ...customFonts].sort();
-      console.log("All fonts loaded successfully.");
-      setFonts(allFonts);
+    //   const allFonts = [...googleFonts, ...customFonts].sort();
+    //   console.log("All fonts loaded successfully.");
+    //   setFonts(allFonts);
+
+
+    //Getting fonts from s3 bucket
+    const fontStyle = document.createElement('style');
+    fontStyle.textContent = `
+      @font-face {
+        font-family: 'PlaywriteIEGuides-Regular';
+        src: url('https://d1til5nimponbk.cloudfront.net/fonts/PlaywriteIEGuides-Regular.ttf') format('truetype');
+      }
+    `;
+    document.head.appendChild(fontStyle);
+
+    setFonts(["Times New Roman","PlaywriteIEGuides-Regular"]);
+
     } catch (error) {
       console.error("Error loading fonts:", error);
     } finally {

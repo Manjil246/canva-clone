@@ -34,7 +34,6 @@ const UndoRedo = ({ canvas, loaded, threshold = 5 }) => {
     if (canvas) {
       const currentState = canvas.toJSON();
       if (!currentState.background) return;
-      console.log("Saving...");
       setUndoStack((prev) => [...prev, currentState]);
       setRedoStack([]); // Clear redo stack whenever a new action is performed
     }
