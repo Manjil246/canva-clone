@@ -26,7 +26,7 @@ const Text = ({ canvas }) => {
   const [dialog, setDialog] = useState(false);
   const [grammarlyDialog, setGrammarlyDialog] = useState(false);
   const [hasBackground, setHasBackground] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleGrammarlyClose = () => setGrammarlyDialog(false);
 
@@ -44,84 +44,114 @@ const Text = ({ canvas }) => {
     }
   }, [grammarlyDialog]);
 
-  useEffect(() => {
-    const fetchFonts = async () => {
-      try {
-        // System and custom fonts
-        const customFonts = [
-          "Times New Roman",
-          "Arial",
-          "Assistant",
-          "Avenir",
-          "Bahnschrift",
-          "Baskerville",
-          "Bodoni",
-          "Bookman Old Style",
-          "Calibri",
-          "Century Gothic",
-          "Covington",
-          "Franklin Gothic",
-          "Garamond",
-          "Georgia",
-          "Gill Sans MT",
-          "Harrington",
-          "Impact",
-          "Khand",
-          "Kunstler Script",
-          "Lato",
-          "Lucida Fax",
-          "Malgun Gothic",
-          "Palatino Linotype",
-          "Perpetua",
-          "Nirmala UI",
-          "Rockwell",
-          "Segoe UI",
-          "Sitka Banner",
-          "Stencil",
-          "Tahoma",
-          "Yu Gothic",
-          "Playfair Display",
-          "Montserrat",
-          "Roboto",
-          "Merriweather",
-          "Spectral",
-          "Lexend",
-          "Lora",
-          "Nunito",
-          "Oswald",
-          "Verdana",
-          "Madina",
-          "Parisienne",
-          "Darleston",
-          "Caviar Dreams",
-          "Gontserrat",
-          "Ragna",
-          "Code"
-        ];
-
-        const fontList = googleFonts.splice(0, 500); // Get the first 500 fonts
-
-        const allFonts = [...fontList, ...customFonts];
-
-        WebFont.load({
-          google: {
-            families: allFonts,
-          },
-          active: () => {
-            setFonts(allFonts);
-            setLoading(false);
-          },
-          inactive: () => {
-            console.error("Failed to load fonts");
-            setLoading(false);
-          },
+  const fetchFonts = async () => {
+    try {
+      // Load Google Fonts using Web Font Loader
+      setLoading(true);
+      const loadBatch = (fonts, index) => {
+        return new Promise((resolve, reject) => {
+          WebFont.load({
+            google: {
+              families: fonts,
+            },
+            active: () => {
+              console.log("Batch loaded successfully:", index);
+              resolve();
+            },
+            inactive: (error) => {
+              console.error("Batch loading failed:", error);
+              reject(error);
+            },
+          });
         });
-      } catch (error) {
-        console.error("Error fetching fonts:", error);
-        setLoading(false);
-      }
-    };
+      };
 
+      // Split fonts into batches
+      const batch1 = googleFonts.slice(0, 600);
+      const batch2 = googleFonts.slice(600, 1200);
+      const batch3 = googleFonts.slice(1200);
+
+      // Load batches in series
+      await loadBatch(batch1, 1);
+      await loadBatch(batch2, 2);
+      await loadBatch(batch3, 3);
+
+      // Add custom fonts after Google Fonts
+      const customFonts = [
+        "Times New Roman",
+        "Arial",
+        "Assistant",
+        "Avenir",
+        "Bahnschrift",
+        "Baskerville",
+        "Bodoni",
+        "Bookman Old Style",
+        "Calibri",
+        "Century Gothic",
+        "Covington",
+        "Franklin Gothic",
+        "Garamond",
+        "Georgia",
+        "Gill Sans MT",
+        "Harrington",
+        "Impact",
+        "Khand",
+        "Kunstler Script",
+        "Lato",
+        "Lucida Fax",
+        "Malgun Gothic",
+        "Palatino Linotype",
+        "Perpetua",
+        "Nirmala UI",
+        "Rockwell",
+        "Segoe UI",
+        "Sitka Banner",
+        "Stencil",
+        "Tahoma",
+        "Yu Gothic",
+        "Playfair Display",
+        "Montserrat",
+        "Roboto",
+        "Merriweather",
+        "Spectral",
+        "Lexend",
+        "Lora",
+        "Nunito",
+        "Oswald",
+        "Verdana",
+        "Madina",
+        "Parisienne",
+        "Darleston",
+        "Caviar Dreams",
+        "Gontserrat",
+        "Ragna",
+        "Code",
+      ];
+
+      const allFonts = [...googleFonts, ...customFonts].sort();
+      console.log("All fonts loaded successfully.");
+      setFonts(allFonts);
+
+      //Getting fonts from s3 bucket
+      // const fontStyle = document.createElement('style');
+      // fontStyle.textContent = `
+      //   @font-face {
+      //     font-family: 'PlaywriteIEGuides-Regular';
+      //     src: url('https://d1til5nimponbk.cloudfront.net/fonts/PlaywriteIEGuides-Regular.ttf') format('truetype');
+      //   }
+      // `;
+      // document.head.appendChild(fontStyle);
+
+      // setFonts(["Times New Roman","PlaywriteIEGuides-Regular"]);
+    } catch (error) {
+      console.error("Error loading fonts:", error);
+    } finally {
+      console.log("Setting loading to false.");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchFonts();
   }, []);
 
@@ -165,7 +195,7 @@ const Text = ({ canvas }) => {
         const effectiveFontSize =
           Math.ceil(
             activeObject.fontSize *
-            Math.min(activeObject.scaleY, activeObject.scaleX)
+              Math.min(activeObject.scaleY, activeObject.scaleX)
           ) || 20;
         setTextValue(activeObject.text || "");
         setFontSize(effectiveFontSize);
@@ -386,8 +416,9 @@ const Text = ({ canvas }) => {
 
           <div className="flex">
             <button
-              className={`px-4 py-2 border rounded mr-2 font-bold ${fontWeight === "bold" ? "bg-gray-300" : ""
-                }`}
+              className={`px-4 py-2 border rounded mr-2 font-bold ${
+                fontWeight === "bold" ? "bg-gray-300" : ""
+              }`}
               onClick={() => {
                 const newWeight = fontWeight === "bold" ? "normal" : "bold";
                 setFontWeight(newWeight);
@@ -398,8 +429,9 @@ const Text = ({ canvas }) => {
             </button>
 
             <button
-              className={`px-4 py-2 border rounded mr-2 italic ${fontStyle === "italic" ? "bg-gray-300" : ""
-                }`}
+              className={`px-4 py-2 border rounded mr-2 italic ${
+                fontStyle === "italic" ? "bg-gray-300" : ""
+              }`}
               onClick={() => {
                 const newStyle = fontStyle === "italic" ? "normal" : "italic";
                 setFontStyle(newStyle);
@@ -410,8 +442,9 @@ const Text = ({ canvas }) => {
             </button>
 
             <button
-              className={`px-4 py-2 border rounded mr-2 underline ${textDecoration === "underline" ? "bg-gray-300" : ""
-                }`}
+              className={`px-4 py-2 border rounded mr-2 underline ${
+                textDecoration === "underline" ? "bg-gray-300" : ""
+              }`}
               onClick={() => {
                 const isUnderline = textDecoration === "underline";
                 setTextDecoration(isUnderline ? "" : "underline");
