@@ -238,48 +238,19 @@ function App() {
     };
   }, []);
 
-  const handleZoom = (direction) => {
+  const handleZoom = (zoomValue) => {
     if (!currentCanvas) return;
 
-    let zoom = currentCanvas.getZoom();
+    // Set the zoom level directly from the slider value
+    setZoomLevel(zoomValue);
 
-    // Calculate new zoom level
-    if (direction === "in") {
-      zoom = Math.min(maxZoom, zoom + zoomStep);
-    } else if (direction === "out") {
-      zoom = Math.max(minZoom, zoom - zoomStep);
-    }
+    // Center the canvas on zoom
+    const center = currentCanvas.getCenter();
 
-    setZoomLevel(zoom);
-
-    // Get the original dimensions
-    const originalWidth = currentCanvas.originalWidth || currentCanvas.width;
-    const originalHeight = currentCanvas.originalHeight || currentCanvas.height;
-
-    // Calculate new dimensions
-    const newWidth = originalWidth * zoom;
-    const newHeight = originalHeight * zoom;
-
-    // Update canvas dimensions
-    currentCanvas.setWidth(newWidth);
-    currentCanvas.setHeight(newHeight);
-
-    // Set the zoom level for fabric.js objects
-    currentCanvas.setZoom(zoom);
-
-    // Ensure the canvas container allows scrolling
-    const canvasContainer = document.querySelector(".canvas-container-wrapper");
-    if (canvasContainer) {
-      canvasContainer.style.overflow = "auto"; // Enable scrollbars
-      canvasContainer.style.width = `${newWidth}px`;
-      canvasContainer.style.height = `${newHeight}px`;
-
-      // Adjust scroll position to center
-      canvasContainer.scrollLeft = (newWidth - canvasContainer.offsetWidth) / 2;
-      canvasContainer.scrollTop =
-        (newHeight - canvasContainer.offsetHeight) / 2;
-    }
-
+    // Adjust the zoom level of the canvas
+    currentCanvas.zoomToPoint({ x: center.left, y: center.top }, zoomValue);
+    
+    
     // Ensure all changes are rendered
     currentCanvas.requestRenderAll();
   };
@@ -422,9 +393,18 @@ function App() {
             />
             <Shapes canvas={currentCanvas} />
             <div className="zoom-toolbar">
-              <button onClick={() => handleZoom("in")}>Zoom In</button>
-              <button onClick={() => handleZoom("out")}>Zoom Out</button>
-              <span>Zoom: {Math.round(zoomLevel * 100)}%</span>
+              <label htmlFor="zoom-slider">
+                Zoom: {Math.round(zoomLevel * 100)}%
+              </label>
+              <input
+                id="zoom-slider"
+                type="range"
+                min={minZoom}
+                max={maxZoom}
+                step={zoomStep}
+                value={zoomLevel}
+                onChange={(e) => handleZoom(Number(e.target.value))}
+              />
             </div>
           </div>
         </div>
