@@ -32,15 +32,13 @@ const Settings = ({ canvas }) => {
   const handleObjectSelection = (object) => {
     if (!object) return;
 
-    console.log(object);
-
     setSelectedObject(object);
     setOpacity(object.opacity);
 
     if (
       object.type === "rect" ||
       object.type === "triangle" ||
-      object.customType === "shape"
+      object.type === "path"
     ) {
       setWidth(Math.round(object.width * object.scaleX));
       setHeight(Math.round(object.height * object.scaleY));
@@ -122,7 +120,8 @@ const Settings = ({ canvas }) => {
     <div>
       {selectedObject &&
         (selectedObject.type === "rect" ||
-          selectedObject.type === "triangle") && (
+          selectedObject.type === "triangle" ||
+          selectedObject.type === "path") && (
           <div className="flex flex-col">
             <input type="text" value={width} onChange={handleWidthChange} />
             <input type="text" value={height} onChange={handleHeightChange} />

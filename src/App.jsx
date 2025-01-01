@@ -266,10 +266,11 @@ function App() {
               {pages.map((page, index) => (
                 <div
                   key={page.id}
-                  className={`relative border rounded-md cursor-pointer ${activePage === page.id
-                    ? "border-blue-500"
-                    : "border-gray-300 hover:border-blue-300"
-                    }`}
+                  className={`relative border rounded-md cursor-pointer ${
+                    activePage === page.id
+                      ? "border-blue-500"
+                      : "border-gray-300 hover:border-blue-300"
+                  }`}
                   onClick={() => handleSwitchPage(page.id)}
                 >
                   {/* Thumbnail Preview */}
@@ -294,7 +295,7 @@ function App() {
               ))}
             </div>
 
-            <BackgroundRemove canvas={currentCanvas} />
+            {/* <BackgroundRemove canvas={currentCanvas} /> */}
           </div>
 
           {/* Canvas Section */}

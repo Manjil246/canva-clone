@@ -497,7 +497,6 @@ const Shapes = ({ canvas }) => {
             }`}
             onClick={() => {
               option.action();
-              setSelectedShape(option.label);
             }}
           >
             {option.icon}
