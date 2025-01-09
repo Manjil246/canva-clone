@@ -295,7 +295,7 @@ function App() {
               ))}
             </div>
 
-            {/* <BackgroundRemove canvas={currentCanvas} /> */}
+            <BackgroundRemove canvas={currentCanvas} />
           </div>
 
           {/* Canvas Section */}
