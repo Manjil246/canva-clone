@@ -19,6 +19,7 @@ import UploadImageS3 from "./components/UploadImageS3";
 import { CopyAll } from "@mui/icons-material";
 import CopyPaste from "./components/CopyPaste";
 import BackgroundRemove from "./components/BackgroundRemove";
+import BackgroundColor from "./components/BackgroundColor";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -294,6 +295,7 @@ function App() {
                 </div>
               ))}
             </div>
+            <BackgroundColor canvas={currentCanvas} />
 
             <BackgroundRemove canvas={currentCanvas} />
           </div>
@@ -311,7 +313,8 @@ function App() {
                 />
                 <canvas
                   id={`canvas-${page.id}`}
-                  className="border border-black"
+                  className={`border border-black`} // bg-red-300
+                  // style={{ backgroundColor: `${color}` }}
                 ></canvas>
                 <Guidelines
                   canvas={canvasesRef.current[page.id]}
