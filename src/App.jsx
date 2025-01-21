@@ -29,6 +29,7 @@ function App() {
   const idRef = useRef(1);
   const [loaded, setLoaded] = useState(false);
   const [changed, setChanged] = useState(false);
+  const [bgColor, setBgColor] = useState("white");
 
   const debounce = (fn, delay) => {
     let timer;
@@ -59,7 +60,7 @@ function App() {
       const newCanvas = new fabric.Canvas(canvasElement, {
         width: canvasesRef.current[pages[0]?.id]?.width || 800,
         height: canvasesRef.current[pages[0]?.id]?.height || 500,
-        backgroundColor: "#ffffff",
+        backgroundColor: bgColor,
       });
 
       const handleKeyDown = (e) => {
@@ -219,6 +220,22 @@ function App() {
     setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
   };
 
+  const handleBgColor = (color) => {
+    const newCanvas = canvasesRef.current[activePage];
+
+    const dataUrl = newCanvas.toDataURL({
+      format: "png",
+      multiplier: 0.2, // Scale down for smaller thumbnails
+    });
+    setPages((prevPages) =>
+      prevPages.map((page) =>
+        page.id === activePage ? { ...page, preview: dataUrl } : page
+      )
+    );
+
+    setBgColor(color);
+  };
+
   return (
     <div
       className="font-serif min-h-screen h-full flex flex-col"
@@ -295,7 +312,11 @@ function App() {
                 </div>
               ))}
             </div>
-            <BackgroundColor canvas={currentCanvas} />
+            <BackgroundColor
+              canvas={currentCanvas}
+              canvasesRef={canvasesRef}
+              setBgColor={(color) => handleBgColor(color)}
+            />
 
             <BackgroundRemove canvas={currentCanvas} />
           </div>

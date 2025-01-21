@@ -1,13 +1,13 @@
-const BackgroundColor = ({ canvas }) => {
+const BackgroundColor = ({ canvas, setBgColor }) => {
   const handleColorChange = (e) => {
     const value = e.target.value;
+
     if (canvas) {
-      console.log("value----", value);
       canvas.backgroundColor = value;
+      setBgColor(value);
+      canvas.renderAll();
       canvas.requestRenderAll();
     }
-    // Update the canvas background color using Fabric.js
-    // canvas.setBackgroundColor(value, canvas.renderAll.bind(canvas));
   };
 
   return (
