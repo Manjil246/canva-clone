@@ -30,6 +30,7 @@ function App() {
   const [loaded, setLoaded] = useState(false);
   const [changed, setChanged] = useState(false);
   const [bgColor, setBgColor] = useState("white");
+  const [contextMenu, setContextMenu] = useState(null);
 
   const debounce = (fn, delay) => {
     let timer;
@@ -47,7 +48,7 @@ function App() {
     }
   }, []);
 
-  const createCanvas = (id) => {
+  const createCanvas = (id, color = null) => {
     const canvasElement = document.getElementById(`canvas-${id}`);
 
     if (canvasElement) {
@@ -60,7 +61,7 @@ function App() {
       const newCanvas = new fabric.Canvas(canvasElement, {
         width: canvasesRef.current[pages[0]?.id]?.width || 800,
         height: canvasesRef.current[pages[0]?.id]?.height || 500,
-        backgroundColor: bgColor,
+        backgroundColor: color || bgColor,
       });
 
       const handleKeyDown = (e) => {
@@ -174,6 +175,19 @@ function App() {
     }
   };
 
+  const handleContextMenu = (event, pageId) => {
+    event.preventDefault();
+    setContextMenu({
+      x: 10,
+      y: 10,
+      pageId,
+    });
+  };
+
+  const handleCloseMenu = () => {
+    setContextMenu(null);
+  };
+
   useEffect(() => {
     if (loaded) {
       setTimeout(() => {
@@ -236,6 +250,41 @@ function App() {
     setBgColor(color);
   };
 
+  const handleDuplicate = async () => {
+    try {
+      const originalCanvas = canvasesRef.current[activePage];
+      if (!originalCanvas) {
+        alert("No canvas to duplicate.");
+        return;
+      }
+
+      // Serialize the current canvas to JSON
+      const canvasJSON = originalCanvas.toJSON();
+
+      // Create a new page ID
+      idRef.current += 1;
+      const newPageId = idRef.current;
+
+      // Add a new page to the pages array
+      setPages((prevPages) => [...prevPages, { id: newPageId }]);
+
+      // Delay the creation of the canvas to allow React to update the DOM
+      setTimeout(() => {
+        createCanvas(newPageId);
+
+        // Load the JSON data into the new canvas
+        setTimeout(() => {
+          const newCanvas = canvasesRef.current[newPageId];
+          newCanvas.loadFromJSON(canvasJSON, () => {
+            newCanvas.requestRenderAll();
+          });
+        }, 0);
+      }, 0);
+    } catch (error) {
+      console.error("Failed to duplicate page:", error);
+    }
+  };
+
   return (
     <div
       className="font-serif min-h-screen h-full flex flex-col"
@@ -276,7 +325,7 @@ function App() {
           <div className="flex flex-col items-center space-y-4 mt-4">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow-md transition"
-              onClick={handleAddPage}
+              onClick={() => handleAddPage()}
             >
               Add Page
             </button>
@@ -296,6 +345,7 @@ function App() {
                     src={page.preview}
                     alt={`Page ${index + 1}`}
                     className="w-52 h-20 object-contain bg-white rounded-t-md"
+                    onContextMenu={(e) => handleContextMenu(e, page.id)}
                   />
                   <div className="flex items-center justify-between px-2 py-1 bg-gray-100 rounded-b-md">
                     <span>Page {index + 1}</span>
@@ -309,6 +359,43 @@ function App() {
                       ✕
                     </button>
                   </div>
+                  {contextMenu && contextMenu.pageId === page.id && (
+                    <div
+                      className="absolute bg-white border shadow-md p-2 rounded-md"
+                      style={{
+                        top: `${contextMenu.y}px`,
+                        left: `${contextMenu.x}px`,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <button
+                        className="block px-4 py-2 text-left hover:bg-gray-300 w-full"
+                        onClick={async () => {
+                          await handleAddPage("#fff");
+                          handleCloseMenu();
+                        }}
+                      >
+                        New Slide
+                      </button>
+                      <button
+                        className="block px-4 py-2 text-left hover:bg-gray-300 w-full"
+                        onClick={async () => {
+                          await handleDuplicate();
+                          handleCloseMenu();
+                        }}
+                      >
+                        Duplicate
+                      </button>
+                    </div>
+                  )}
+                  {/* Close menu on clicking outside */}
+                  {contextMenu && (
+                    <div
+                      className="fixed inset-0"
+                      onClick={handleCloseMenu}
+                      onContextMenu={handleCloseMenu}
+                    ></div>
+                  )}
                 </div>
               ))}
             </div>
@@ -334,8 +421,7 @@ function App() {
                 />
                 <canvas
                   id={`canvas-${page.id}`}
-                  className={`border border-black`} // bg-red-300
-                  // style={{ backgroundColor: `${color}` }}
+                  className="border border-black"
                 ></canvas>
                 <Guidelines
                   canvas={canvasesRef.current[page.id]}
