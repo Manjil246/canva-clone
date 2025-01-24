@@ -14,6 +14,7 @@ const Text = ({ canvas }) => {
   const [fontStyle, setFontStyle] = useState("normal");
   const [textDecoration, setTextDecoration] = useState("");
   const [lineHeight, setLineHeight] = useState(1.2);
+  const [letterSpacing, setLetterSpacing] = useState(0.2);
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
@@ -178,6 +179,9 @@ const Text = ({ canvas }) => {
       canvas.renderAll();
       // }
     }
+    if (property === "letterSpacing") {
+      activeObject.set("charSpacing", value * 1000);
+    }
   };
 
   useEffect(() => {
@@ -238,6 +242,7 @@ const Text = ({ canvas }) => {
         fontStyle,
         underline: textDecoration === "underline",
         lineHeight,
+        letterSpacing,
         fontFamily,
         fill: textColor,
         editable: true,
@@ -395,6 +400,21 @@ const Text = ({ canvas }) => {
               onChange={(e) => {
                 setFontSize(e.target.value);
                 updateActiveText("fontSize", parseInt(e.target.value, 10));
+              }}
+              className="ml-2 border border-gray-300 rounded px-2 py-1"
+            />
+          </label>
+
+          <label className="block mb-2">
+            Letter Spacing:
+            <input
+              type="number"
+              value={letterSpacing}
+              step={0.05}
+              onChange={(e) => {
+                const spacingValue = parseFloat(e.target.value);
+                setLetterSpacing(spacingValue);
+                updateActiveText("letterSpacing", spacingValue);
               }}
               className="ml-2 border border-gray-300 rounded px-2 py-1"
             />
