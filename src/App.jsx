@@ -31,6 +31,7 @@ function App() {
   const [changed, setChanged] = useState(false);
   const [bgColor, setBgColor] = useState("white");
   const [contextMenu, setContextMenu] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const debounce = (fn, delay) => {
     let timer;
@@ -285,6 +286,49 @@ function App() {
     }
   };
 
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+
+    const canvas = canvasesRef.current[activePage];
+    if (!canvas) return;
+
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const imgElement = document.createElement("img");
+            imgElement.src = e.target.result;
+
+            imgElement.onload = () => {
+              const fabricImage = new fabric.Image(imgElement, {
+                scaleX: 0.5,
+                scaleY: 0.5,
+              });
+
+              canvas.add(fabricImage);
+              canvas.setActiveObject(fabricImage);
+              canvas.renderAll();
+            };
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
   return (
     <div
       className="font-serif min-h-screen h-full flex flex-col"
@@ -409,7 +453,15 @@ function App() {
           </div>
 
           {/* Canvas Section */}
-          <div className="canvas-container mt-8 w-full flex justify-center">
+          <div
+            className={`canvas-container mt-8 w-full flex justify-center relative ${
+              isDragging ? "dragging" : ""
+            }`}
+            onDragOver={(e) => e.preventDefault()}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             {pages.map((page) => (
               <div
                 key={page.id}
@@ -433,7 +485,11 @@ function App() {
 
           {/* Additional Tools */}
           <div className="flex flex-col justify-start gap-4 mt-8">
-            <UploadImageS3 canvas={currentCanvas} />
+            <UploadImageS3
+              canvas={currentCanvas}
+              canvasesRef={canvasesRef}
+              activePage={activePage}
+            />
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>
