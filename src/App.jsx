@@ -20,6 +20,7 @@ import { CopyAll } from "@mui/icons-material";
 import CopyPaste from "./components/CopyPaste";
 import BackgroundRemove from "./components/BackgroundRemove";
 import BackgroundColor from "./components/BackgroundColor";
+import ImageWidthHeight from "./components/ImageWidthHeight";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -32,6 +33,8 @@ function App() {
   const [bgColor, setBgColor] = useState("white");
   const [contextMenu, setContextMenu] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  const activeObject = currentCanvas?.getActiveObject();
 
   const debounce = (fn, delay) => {
     let timer;
@@ -490,6 +493,13 @@ function App() {
               canvasesRef={canvasesRef}
               activePage={activePage}
             />
+            {activeObject && activeObject.type === "image" && (
+              <ImageWidthHeight
+                canvas={currentCanvas}
+                canvasesRef={canvasesRef}
+                activePage={activePage}
+              />
+            )}
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>
