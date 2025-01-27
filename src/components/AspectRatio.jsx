@@ -8,6 +8,22 @@ const AspectRatio = ({ pages, canvasesRef, setChanged }) => {
     pages.forEach((page) => {
       const canvas = canvasesRef.current[page.id];
       if (canvas) {
+        // Get the current dimensions of the canvas
+        const oldWidth = canvas.getWidth();
+        const oldHeight = canvas.getHeight();
+
+        // Calculate the scale factors
+        const scaleX = width / oldWidth;
+        const scaleY = height / oldHeight;
+
+        // Scale all objects proportionally
+        canvas.getObjects().forEach((obj) => {
+          obj.scaleX *= scaleX;
+          obj.scaleY *= scaleY;
+          obj.left *= scaleX;
+          obj.top *= scaleY;
+          obj.setCoords(); // Update object's coordinates
+        });
         canvas.setWidth(width);
         canvas.setHeight(height);
         canvas.requestRenderAll();
