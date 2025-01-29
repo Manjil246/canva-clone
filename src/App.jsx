@@ -69,7 +69,11 @@ function App() {
       });
 
       const handleKeyDown = (e) => {
-        if (e.key === "Delete") {
+        const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+        const deleteKeyPressed =
+          e.key === "Delete" || (isMac && e.key === "Backspace" && e.metaKey);
+
+        if (deleteKeyPressed) {
           const activeObjects = newCanvas.getActiveObjects();
           if (activeObjects && activeObjects.length > 0) {
             activeObjects.forEach((obj) => {
@@ -82,6 +86,7 @@ function App() {
             newCanvas.discardActiveObject(); // Clear the active selection
             newCanvas.renderAll();
           }
+          e.preventDefault();
         }
       };
 
