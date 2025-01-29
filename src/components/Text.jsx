@@ -29,6 +29,8 @@ const Text = ({ canvas }) => {
   const [hasBackground, setHasBackground] = useState(true);
   const [loading, setLoading] = useState(false);
 
+  const activeObject = canvas?.getActiveObject();
+
   const handleGrammarlyClose = () => setGrammarlyDialog(false);
 
   const handleBlur = (e) => {
@@ -294,6 +296,58 @@ const Text = ({ canvas }) => {
       }
     }
   }, [listStyle]);
+
+  const applyBoldToSelectedText = () => {
+    const activeObject = canvas.getActiveObject();
+
+    if (activeObject && activeObject.type === "textbox") {
+      const selectionStart = activeObject.selectionStart;
+      const selectionEnd = activeObject.selectionEnd;
+
+      if (selectionStart === selectionEnd) return; // No text selected
+
+      // Check if all selected text is bold
+      let allBold = true;
+      for (let i = selectionStart; i < selectionEnd; i++) {
+        const charStyle = activeObject.getSelectionStyles(i) || {};
+        if (!charStyle.fontWeight || charStyle.fontWeight !== "bold") {
+          allBold = false;
+          break;
+        }
+      }
+
+      // Toggle font weight based on the current style
+      const newFontWeight = allBold ? "normal" : "bold";
+
+      for (let i = selectionStart; i < selectionEnd; i++) {
+        activeObject.setSelectionStyles(
+          { fontWeight: newFontWeight },
+          i,
+          i + 1
+        );
+      }
+
+      activeObject.set("dirty", true);
+      canvas.renderAll();
+    }
+  };
+
+  useEffect(() => {
+    if (canvas) {
+      const handleKeyDown = (event) => {
+        if (event.ctrlKey && event.key === "b") {
+          event.preventDefault(); // Prevent default Ctrl+B behavior
+          applyBoldToSelectedText(); // Apply bold formatting
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      return () => {
+        document.removeEventListener("keydown", handleKeyDown);
+      };
+    }
+  }, [canvas, activeObject]);
 
   const handleListStyleChange = (style) => {
     setPreviousListStyle(listStyle);
