@@ -60,6 +60,21 @@ const Shadow = ({ canvas }) => {
     setShadowOffsetY(0);
   };
 
+  // Apply preset shadow settings
+  const applyPresetShadow = (offsetX, offsetY, blur) => {
+    if (!canvas) return;
+    const activeObject = canvas.getActiveObject();
+    if (activeObject) {
+      activeObject.set("shadow", {
+        color: shadowColor,
+        blur: blur,
+        offsetX: offsetX,
+        offsetY: offsetY,
+      });
+      canvas.renderAll();
+    }
+  };
+
   if (!isObjectSelected) {
     return (
       <div className="text-gray-500">
@@ -123,13 +138,51 @@ const Shadow = ({ canvas }) => {
             onChange={(e) => setShadowColor(e.target.value)}
           />
         </div>
+      </div>
+
+      {/* Preset Buttons */}
+      <div className="flex space-x-4 mb-4">
         <button
-          onClick={resetShadow}
-          className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 h-fit w-fit"
+          onClick={() => applyPresetShadow(10, 10, 5)} // Bottom-right shadow
+          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          Reset Shadow
+          Bottom-Right
+        </button>
+        <button
+          onClick={() => applyPresetShadow(-10, 10, 5)} // Bottom-Left shadow
+          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Bottom-Left
         </button>
       </div>
+      <div className="flex space-x-4 mb-4">
+        <button
+          onClick={() => applyPresetShadow(10, -10, 5)} // Top-Right shadow
+          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Top-Right
+        </button>
+        <button
+          onClick={() => applyPresetShadow(-10, -10, 5)} // Top-left shadow
+          className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Top-Left
+        </button>
+
+        <button
+          onClick={() => applyPresetShadow(0, 0, 0)} // Reset shadow (no offset, no blur)
+          className="px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
+        >
+          Reset Preset
+        </button>
+      </div>
+
+      <button
+        onClick={resetShadow}
+        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 h-fit w-fit"
+      >
+        Reset Shadow
+      </button>
     </div>
   );
 };
