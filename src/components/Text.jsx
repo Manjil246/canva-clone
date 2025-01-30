@@ -297,7 +297,7 @@ const Text = ({ canvas }) => {
     }
   }, [listStyle]);
 
-  const applyBoldToSelectedText = () => {
+  const applyTextStyle = (styleType) => {
     const activeObject = canvas.getActiveObject();
 
     if (activeObject && activeObject.type === "textbox") {
@@ -306,27 +306,36 @@ const Text = ({ canvas }) => {
 
       if (selectionStart === selectionEnd) return; // No text selected
 
-      // Check if all selected text is bold
-      let allBold = true;
-      for (let i = selectionStart; i < selectionEnd; i++) {
-        const charStyle = activeObject.getSelectionStyles(i) || {};
-        if (!charStyle.fontWeight || charStyle.fontWeight !== "bold") {
-          allBold = false;
-          break;
-        }
+      // Get styles for the selected text range
+      const selectedStyles = activeObject.getSelectionStyles(
+        selectionStart,
+        selectionEnd
+      );
+
+      // Determine if the selected text has the specified style
+      let hasStyle = false;
+      if (styleType === "bold") {
+        hasStyle = selectedStyles.some((style) => style.fontWeight === "bold");
+      } else if (styleType === "italic") {
+        hasStyle = selectedStyles.some((style) => style.fontStyle === "italic");
+      } else if (styleType === "underline") {
+        hasStyle = selectedStyles.some((style) => style.underline === true);
       }
 
-      // Toggle font weight based on the current style
-      const newFontWeight = allBold ? "normal" : "bold";
-
-      for (let i = selectionStart; i < selectionEnd; i++) {
-        activeObject.setSelectionStyles(
-          { fontWeight: newFontWeight },
-          i,
-          i + 1
-        );
+      // Toggle style
+      let newStyle;
+      if (styleType === "bold") {
+        newStyle = { fontWeight: hasStyle ? "normal" : "bold" };
+      } else if (styleType === "italic") {
+        newStyle = { fontStyle: hasStyle ? "normal" : "italic" };
+      } else if (styleType === "underline") {
+        newStyle = { underline: !hasStyle };
       }
 
+      // Apply new style to the entire selection
+      activeObject.setSelectionStyles(newStyle);
+
+      // Ensure changes reflect on the canvas
       activeObject.set("dirty", true);
       canvas.renderAll();
     }
@@ -335,9 +344,18 @@ const Text = ({ canvas }) => {
   useEffect(() => {
     if (canvas) {
       const handleKeyDown = (event) => {
-        if (event.ctrlKey && event.key === "b") {
-          event.preventDefault(); // Prevent default Ctrl+B behavior
-          applyBoldToSelectedText(); // Apply bold formatting
+        if (event.ctrlKey) {
+          const key = event.key.toLowerCase();
+          if (key === "b") {
+            event.preventDefault(); // Prevent default Ctrl+B behavior
+            applyTextStyle("bold"); // Toggle bold
+          } else if (key === "i") {
+            event.preventDefault(); // Prevent default Ctrl+I behavior
+            applyTextStyle("italic"); // Toggle italic
+          } else if (key === "u") {
+            event.preventDefault(); // Prevent default Ctrl+U behavior
+            applyTextStyle("underline"); // Toggle underline
+          }
         }
       };
 
