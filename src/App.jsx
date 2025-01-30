@@ -19,6 +19,8 @@ import UploadImageS3 from "./components/UploadImageS3";
 import { CopyAll } from "@mui/icons-material";
 import CopyPaste from "./components/CopyPaste";
 import BackgroundRemove from "./components/BackgroundRemove";
+import BackgroundColor from "./components/BackgroundColor";
+import ImageWidthHeight from "./components/ImageWidthHeight";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -28,6 +30,11 @@ function App() {
   const idRef = useRef(1);
   const [loaded, setLoaded] = useState(false);
   const [changed, setChanged] = useState(false);
+  const [bgColor, setBgColor] = useState("white");
+  const [contextMenu, setContextMenu] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const activeObject = currentCanvas?.getActiveObject();
 
   const debounce = (fn, delay) => {
     let timer;
@@ -45,7 +52,7 @@ function App() {
     }
   }, []);
 
-  const createCanvas = (id) => {
+  const createCanvas = (id, color = null) => {
     const canvasElement = document.getElementById(`canvas-${id}`);
 
     if (canvasElement) {
@@ -58,11 +65,15 @@ function App() {
       const newCanvas = new fabric.Canvas(canvasElement, {
         width: canvasesRef.current[pages[0]?.id]?.width || 800,
         height: canvasesRef.current[pages[0]?.id]?.height || 500,
-        backgroundColor: "#ffffff",
+        backgroundColor: color || bgColor,
       });
 
       const handleKeyDown = (e) => {
-        if (e.key === "Delete") {
+        const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0;
+        const deleteKeyPressed =
+          e.key === "Delete" || (isMac && e.key === "Backspace" && e.metaKey);
+
+        if (deleteKeyPressed) {
           const activeObjects = newCanvas.getActiveObjects();
           if (activeObjects && activeObjects.length > 0) {
             activeObjects.forEach((obj) => {
@@ -75,6 +86,7 @@ function App() {
             newCanvas.discardActiveObject(); // Clear the active selection
             newCanvas.renderAll();
           }
+          e.preventDefault();
         }
       };
 
@@ -172,6 +184,19 @@ function App() {
     }
   };
 
+  const handleContextMenu = (event, pageId) => {
+    event.preventDefault();
+    setContextMenu({
+      x: 10,
+      y: 10,
+      pageId,
+    });
+  };
+
+  const handleCloseMenu = () => {
+    setContextMenu(null);
+  };
+
   useEffect(() => {
     if (loaded) {
       setTimeout(() => {
@@ -218,6 +243,100 @@ function App() {
     setCurrentCanvas(canvasesRef.current[id]); // Update the current canvas
   };
 
+  const handleBgColor = (color) => {
+    const newCanvas = canvasesRef.current[activePage];
+
+    const dataUrl = newCanvas.toDataURL({
+      format: "png",
+      multiplier: 0.2, // Scale down for smaller thumbnails
+    });
+    setPages((prevPages) =>
+      prevPages.map((page) =>
+        page.id === activePage ? { ...page, preview: dataUrl } : page
+      )
+    );
+
+    setBgColor(color);
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      const originalCanvas = canvasesRef.current[activePage];
+      if (!originalCanvas) {
+        alert("No canvas to duplicate.");
+        return;
+      }
+
+      // Serialize the current canvas to JSON
+      const canvasJSON = originalCanvas.toJSON();
+
+      // Create a new page ID
+      idRef.current += 1;
+      const newPageId = idRef.current;
+
+      // Add a new page to the pages array
+      setPages((prevPages) => [...prevPages, { id: newPageId }]);
+
+      // Delay the creation of the canvas to allow React to update the DOM
+      setTimeout(() => {
+        createCanvas(newPageId);
+
+        // Load the JSON data into the new canvas
+        setTimeout(() => {
+          const newCanvas = canvasesRef.current[newPageId];
+          newCanvas.loadFromJSON(canvasJSON, () => {
+            newCanvas.requestRenderAll();
+          });
+        }, 0);
+      }, 0);
+    } catch (error) {
+      console.error("Failed to duplicate page:", error);
+    }
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+
+    const canvas = canvasesRef.current[activePage];
+    if (!canvas) return;
+
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      Array.from(files).forEach((file) => {
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const imgElement = document.createElement("img");
+            imgElement.src = e.target.result;
+
+            imgElement.onload = () => {
+              const fabricImage = new fabric.Image(imgElement, {
+                scaleX: 0.5,
+                scaleY: 0.5,
+              });
+
+              canvas.add(fabricImage);
+              canvas.setActiveObject(fabricImage);
+              canvas.renderAll();
+            };
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
   return (
     <div
       className="font-serif min-h-screen h-full flex flex-col"
@@ -258,7 +377,7 @@ function App() {
           <div className="flex flex-col items-center space-y-4 mt-4">
             <button
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow-md transition"
-              onClick={handleAddPage}
+              onClick={() => handleAddPage()}
             >
               Add Page
             </button>
@@ -278,6 +397,7 @@ function App() {
                     src={page.preview}
                     alt={`Page ${index + 1}`}
                     className="w-52 h-20 object-contain bg-white rounded-t-md"
+                    onContextMenu={(e) => handleContextMenu(e, page.id)}
                   />
                   <div className="flex items-center justify-between px-2 py-1 bg-gray-100 rounded-b-md">
                     <span>Page {index + 1}</span>
@@ -291,15 +411,65 @@ function App() {
                       ✕
                     </button>
                   </div>
+                  {contextMenu && contextMenu.pageId === page.id && (
+                    <div
+                      className="absolute bg-white border shadow-md p-2 rounded-md"
+                      style={{
+                        top: `${contextMenu.y}px`,
+                        left: `${contextMenu.x}px`,
+                        zIndex: 1000,
+                      }}
+                    >
+                      <button
+                        className="block px-4 py-2 text-left hover:bg-gray-300 w-full"
+                        onClick={async () => {
+                          await handleAddPage("#fff");
+                          handleCloseMenu();
+                        }}
+                      >
+                        New Slide
+                      </button>
+                      <button
+                        className="block px-4 py-2 text-left hover:bg-gray-300 w-full"
+                        onClick={async () => {
+                          await handleDuplicate();
+                          handleCloseMenu();
+                        }}
+                      >
+                        Duplicate
+                      </button>
+                    </div>
+                  )}
+                  {/* Close menu on clicking outside */}
+                  {contextMenu && (
+                    <div
+                      className="fixed inset-0"
+                      onClick={handleCloseMenu}
+                      onContextMenu={handleCloseMenu}
+                    ></div>
+                  )}
                 </div>
               ))}
             </div>
+            <BackgroundColor
+              canvas={currentCanvas}
+              canvasesRef={canvasesRef}
+              setBgColor={(color) => handleBgColor(color)}
+            />
 
             <BackgroundRemove canvas={currentCanvas} />
           </div>
 
           {/* Canvas Section */}
-          <div className="canvas-container mt-8 w-full flex justify-center">
+          <div
+            className={`canvas-container mt-8 w-full flex justify-center relative ${
+              isDragging ? "dragging" : ""
+            }`}
+            onDragOver={(e) => e.preventDefault()}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
             {pages.map((page) => (
               <div
                 key={page.id}
@@ -323,7 +493,18 @@ function App() {
 
           {/* Additional Tools */}
           <div className="flex flex-col justify-start gap-4 mt-8">
-            <UploadImageS3 canvas={currentCanvas} />
+            <UploadImageS3
+              canvas={currentCanvas}
+              canvasesRef={canvasesRef}
+              activePage={activePage}
+            />
+            {activeObject && activeObject.type === "image" && (
+              <ImageWidthHeight
+                canvas={currentCanvas}
+                canvasesRef={canvasesRef}
+                activePage={activePage}
+              />
+            )}
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>

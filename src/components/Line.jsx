@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as fabric from "fabric";
 
 const Line = ({ canvas }) => {
   const [isLineModeActive, setIsLineModeActive] = useState(false);
-
+  const [lineColor, setLineColor] = useState("black"); // State to hold the selected line color
+  const [selectedObject, setSelectedObject] = useState(null); // To track the active object
+  const [strokeWidth, setStrokeWidth] = useState(2);
   const toggleLineMode = () => {
     if (!canvas) return;
 
@@ -22,8 +24,8 @@ const Line = ({ canvas }) => {
     const startDrawing = (event) => {
       const pointer = canvas.getPointer(event.e);
       line = new fabric.Line([pointer.x, pointer.y, pointer.x, pointer.y], {
-        stroke: "black",
-        strokeWidth: 2,
+        stroke: lineColor,
+        strokeWidth: strokeWidth,
         selectable: false, // Initially not selectable
         hasControls: true, // Add resize/rotate controls later
         hasBorders: true, // Add borders for visual feedback
@@ -34,7 +36,10 @@ const Line = ({ canvas }) => {
     const whileDrawing = (event) => {
       if (!line) return;
       const pointer = canvas.getPointer(event.e);
-      line.set({ x2: pointer.x, y2: pointer.y });
+      line.set({
+        x2: pointer.x,
+        y2: pointer.y,
+      });
       canvas.renderAll();
     };
 
@@ -45,6 +50,7 @@ const Line = ({ canvas }) => {
           hasControls: true, // Allow resizing and rotation
         });
         canvas.setActiveObject(line); // Automatically select the line
+        setSelectedObject(line); // Set the active object
       }
       line = null;
     };
@@ -68,8 +74,8 @@ const Line = ({ canvas }) => {
     const verticalLine = new fabric.Line(
       [center.left, startY, center.left, endY], // X remains constant at center.left
       {
-        stroke: "black",
-        strokeWidth: 2,
+        stroke: lineColor,
+        strokeWidth: strokeWidth,
         selectable: true,
         hasControls: true,
         hasBorders: true,
@@ -77,6 +83,7 @@ const Line = ({ canvas }) => {
     );
     canvas.add(verticalLine);
     canvas.renderAll();
+    setSelectedObject(verticalLine); // Set the vertical line as the active object
   };
 
   // Add a horizontal line in the center of the canvas
@@ -91,8 +98,8 @@ const Line = ({ canvas }) => {
     const horizontalLine = new fabric.Line(
       [startX, center.top, endX, center.top], // Y remains constant at center.top
       {
-        stroke: "black",
-        strokeWidth: 2,
+        stroke: lineColor,
+        strokeWidth: strokeWidth,
         selectable: true,
         hasControls: true,
         hasBorders: true,
@@ -100,7 +107,36 @@ const Line = ({ canvas }) => {
     );
     canvas.add(horizontalLine);
     canvas.renderAll();
+    setSelectedObject(horizontalLine);
   };
+
+  const handleColorChange = (e) => {
+    const value = e.target.value;
+    setLineColor(value);
+
+    if (selectedObject && selectedObject.type === "line") {
+      selectedObject.set({ stroke: value });
+      canvas.renderAll();
+    }
+  };
+
+  const handleStrokeWidthChange = (e) => {
+    const newStrokeWidth = parseInt(e.target.value, 10);
+    setStrokeWidth(newStrokeWidth);
+
+    if (selectedObject && selectedObject.type === "line") {
+      selectedObject.set({ strokeWidth: newStrokeWidth });
+      canvas.renderAll();
+    }
+  };
+
+  useEffect(() => {
+    if (canvas) {
+      canvas.on("object:selected", (e) => {
+        setSelectedObject(e.target);
+      });
+    }
+  }, [canvas]);
 
   return (
     <>
@@ -120,6 +156,29 @@ const Line = ({ canvas }) => {
           <div className="w-10 h-[2px] bg-black "></div>
         </button>
       </div>
+      {selectedObject && (
+        <div className="flex flex-col">
+          <label>
+            Select Line Color:
+            <input
+              type="color"
+              value={lineColor}
+              onChange={handleColorChange}
+            />
+          </label>
+
+          <label>
+            Line Thickness:
+            <input
+              min={1}
+              max={20}
+              type="number"
+              value={strokeWidth}
+              onChange={handleStrokeWidthChange}
+            />
+          </label>
+        </div>
+      )}
     </>
   );
 };

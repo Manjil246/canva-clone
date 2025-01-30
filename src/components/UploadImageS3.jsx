@@ -2,9 +2,10 @@ import React, { useRef, useState } from "react";
 import { uploadImage, getKeyForS3DesignerPage } from "../utils/uploadTos3";
 import * as fabric from "fabric";
 
-const UploadImageS3 = ({ canvas }) => {
+const UploadImageS3 = ({ canvas, canvasesRef, activePage }) => {
   const [images, setImages] = useState([]);
   const [loadingImage, setLoadingImage] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const imageRef = useRef(null);
 
   const handleImageUpload = async (event) => {
@@ -75,8 +76,60 @@ const UploadImageS3 = ({ canvas }) => {
     };
   };
 
+  const handleDrop = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+
+    const activeCanvas = canvasesRef.current[activePage];
+    if (!activeCanvas) return;
+
+    const imageUrl = event.dataTransfer.getData("image-url");
+    if (imageUrl) {
+      const imgElement = document.createElement("img");
+      imgElement.crossOrigin = "anonymous";
+      imgElement.src = imageUrl;
+
+      imgElement.onload = () => {
+        const fabricImage = new fabric.Image(imgElement, {
+          left: activeCanvas.width / 2,
+          top: activeCanvas.height / 2,
+          originX: "center",
+          originY: "center",
+          scaleX: 0.5,
+          scaleY: 0.5,
+        });
+
+        activeCanvas.add(fabricImage);
+        activeCanvas.setActiveObject(fabricImage);
+        activeCanvas.renderAll();
+      };
+    }
+  };
+
+  const handleDragEnter = (event) => {
+    event.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (event) => {
+    event.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
   return (
-    <div className="upload-container flex flex-col gap-4">
+    <div
+      className={`upload-container flex flex-col gap-4 ${
+        isDragging ? "border-dashed border-2 border-blue-600" : ""
+      }`}
+      onDrop={handleDrop}
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+    >
       {/* Upload Button */}
       <label className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded shadow-md cursor-pointer transition">
         {loadingImage ? "Uploading..." : "Upload Image"}

@@ -14,6 +14,7 @@ const Text = ({ canvas }) => {
   const [fontStyle, setFontStyle] = useState("normal");
   const [textDecoration, setTextDecoration] = useState("");
   const [lineHeight, setLineHeight] = useState(1.2);
+  const [letterSpacing, setLetterSpacing] = useState(0.2);
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
@@ -73,8 +74,8 @@ const Text = ({ canvas }) => {
 
       // Load batches in series
       await loadBatch(batch1, 1);
-      await loadBatch(batch2, 2);
-      await loadBatch(batch3, 3);
+      // await loadBatch(batch2, 2);
+      // await loadBatch(batch3, 3);
 
       // Add custom fonts after Google Fonts
       const customFonts = [
@@ -128,7 +129,7 @@ const Text = ({ canvas }) => {
         "Code",
       ];
 
-      const allFonts = [...googleFonts, ...customFonts].sort();
+      const allFonts = [...googleFonts.slice(0, 600), ...customFonts].sort();
       console.log("All fonts loaded successfully.");
       setFonts(allFonts);
 
@@ -155,28 +156,242 @@ const Text = ({ canvas }) => {
     fetchFonts();
   }, []);
 
+  const applyBoldToRange = (textObject, start, end) => {
+    if (!textObject || !textObject.styles) return;
+
+    const lines = textObject.text.split("\n");
+    let charIndex = 0;
+
+    lines.forEach((line, lineIndex) => {
+      for (let i = 0; i < line.length; i++) {
+        if (charIndex >= start && charIndex < end) {
+          textObject.styles[lineIndex] = textObject.styles[lineIndex] || {};
+          textObject.styles[lineIndex][i] = {
+            ...textObject.styles[lineIndex][i],
+            fontWeight: "bold",
+          };
+        }
+        charIndex++;
+      }
+      charIndex++; // Account for the newline character
+    });
+
+    textObject.set("dirty", true);
+    textObject.setCoords();
+    canvas.requestRenderAll();
+  };
+
+  const applyUnboldToRange = (textObject, start, end) => {
+    if (!textObject || !textObject.styles) return;
+
+    const lines = textObject.text.split("\n");
+    let charIndex = 0;
+
+    lines.forEach((line, lineIndex) => {
+      for (let i = 0; i < line.length; i++) {
+        if (charIndex >= start && charIndex < end) {
+          textObject.styles[lineIndex] = textObject.styles[lineIndex] || {};
+          textObject.styles[lineIndex][i] = {
+            ...textObject.styles[lineIndex][i],
+            fontWeight: "normal",
+          };
+        }
+        charIndex++;
+      }
+      charIndex++; // Account for the newline character
+    });
+
+    textObject.set("dirty", true);
+    textObject.setCoords();
+    canvas.requestRenderAll();
+  };
+
+  const applyItalicToRange = (textObject, start, end) => {
+    if (!textObject || !textObject.styles) return;
+
+    const lines = textObject.text.split("\n");
+    let charIndex = 0;
+
+    lines.forEach((line, lineIndex) => {
+      for (let i = 0; i < line.length; i++) {
+        if (charIndex >= start && charIndex < end) {
+          textObject.styles[lineIndex] = textObject.styles[lineIndex] || {};
+          textObject.styles[lineIndex][i] = {
+            ...textObject.styles[lineIndex][i],
+            fontStyle: "italic",
+          };
+        }
+        charIndex++;
+      }
+      charIndex++; // Account for the newline character
+    });
+
+    textObject.set("dirty", true);
+    textObject.setCoords();
+    canvas.requestRenderAll();
+  };
+
+  const applyUnitalicToRange = (textObject, start, end) => {
+    if (!textObject || !textObject.styles) return;
+
+    const lines = textObject.text.split("\n");
+    let charIndex = 0;
+
+    lines.forEach((line, lineIndex) => {
+      for (let i = 0; i < line.length; i++) {
+        if (charIndex >= start && charIndex < end) {
+          textObject.styles[lineIndex] = textObject.styles[lineIndex] || {};
+          textObject.styles[lineIndex][i] = {
+            ...textObject.styles[lineIndex][i],
+            fontStyle: "normal",
+          };
+        }
+        charIndex++;
+      }
+      charIndex++; // Account for the newline character
+    });
+
+    textObject.set("dirty", true);
+    textObject.setCoords();
+    canvas.requestRenderAll();
+  };
+
+  const applyUnderlineToRange = (textObject, start, end) => {
+    if (!textObject || !textObject.styles) return;
+
+    const lines = textObject.text.split("\n");
+    let charIndex = 0;
+
+    lines.forEach((line, lineIndex) => {
+      for (let i = 0; i < line.length; i++) {
+        if (charIndex >= start && charIndex < end) {
+          textObject.styles[lineIndex] = textObject.styles[lineIndex] || {};
+          textObject.styles[lineIndex][i] = {
+            ...textObject.styles[lineIndex][i],
+            underline: true,
+          };
+        }
+        charIndex++;
+      }
+      charIndex++; // Account for the newline character
+    });
+
+    textObject.set("dirty", true);
+    textObject.setCoords();
+    canvas.requestRenderAll();
+  };
+
+  const applyNonUnderlineToRange = (textObject, start, end) => {
+    if (!textObject || !textObject.styles) return;
+
+    const lines = textObject.text.split("\n");
+    let charIndex = 0;
+
+    lines.forEach((line, lineIndex) => {
+      for (let i = 0; i < line.length; i++) {
+        if (charIndex >= start && charIndex < end) {
+          textObject.styles[lineIndex] = textObject.styles[lineIndex] || {};
+          textObject.styles[lineIndex][i] = {
+            ...textObject.styles[lineIndex][i],
+            underline: false,
+          };
+        }
+        charIndex++;
+      }
+      charIndex++; // Account for the newline character
+    });
+
+    textObject.set("dirty", true);
+    textObject.setCoords();
+    canvas.requestRenderAll();
+  };
+
   const updateActiveText = (property, value) => {
     const activeObject = canvas.getActiveObject();
     if (activeObject && activeObject.type === "textbox") {
-      // if (property === "fontFamily") {
-      //   // Load the font using Web Font Loader
-      //   WebFont.load({
-      //     google: {
-      //       families: [value], // Font family to load
-      //     },
-      //     active: () => {
-      //       // Font is loaded, apply it to the canvas object
-      //       activeObject.set(property, value);
-      //       canvas.renderAll();
-      //     },
-      //     inactive: () => {
-      //       console.error(`Failed to load the font: ${value}`);
-      //     },
-      //   });
-      // } else {
-      activeObject.set(property, value);
-      canvas.renderAll();
-      // }
+      const selectionStart = activeObject.selectionStart;
+      const selectionEnd = activeObject.selectionEnd;
+      if (selectionStart !== selectionEnd) {
+        if (property === "fontWeight") {
+          if (fontWeight === "bold") {
+            applyUnboldToRange(activeObject, selectionStart, selectionEnd);
+          } else {
+            applyBoldToRange(activeObject, selectionStart, selectionEnd);
+          }
+        } else if (property === "fontStyle") {
+          if (fontStyle === "italic") {
+            applyUnitalicToRange(activeObject, selectionStart, selectionEnd);
+          } else {
+            applyItalicToRange(activeObject, selectionStart, selectionEnd);
+          }
+        } else if (property === "underline") {
+          if (textDecoration === "underline") {
+            applyNonUnderlineToRange(
+              activeObject,
+              selectionStart,
+              selectionEnd
+            );
+          } else {
+            applyUnderlineToRange(activeObject, selectionStart, selectionEnd);
+          }
+        } else {
+          const styles = activeObject.styles || {};
+          for (let i = selectionStart; i < selectionEnd; i++) {
+            styles[0] = styles[0] || {};
+            styles[0][i] = styles[0][i] || {};
+            styles[0][i][property] = value;
+          }
+          activeObject.set("styles", styles);
+        }
+      } else {
+        activeObject.set(property, value);
+      }
+      activeObject.setCoords(); // Update the coordinates
+      activeObject.set({
+        width: activeObject.calcTextWidth() + 1, // Adjust width to fit text
+        height: activeObject.calcTextHeight() + 1, // Adjust height to fit text
+      });
+      canvas.requestRenderAll();
+    }
+    if (property === "letterSpacing") {
+      activeObject.set("charSpacing", value * 1000);
+    }
+  };
+
+  const detectTextStyles = () => {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === "textbox") {
+      const selectionStart = activeObject.selectionStart;
+      const selectionEnd = activeObject.selectionEnd;
+      if (selectionStart !== selectionEnd) {
+        const styles = activeObject.styles || {};
+        let isBold = false;
+        let isItalic = false;
+        let isUnderline = false;
+
+        const lines = activeObject.text.split("\n");
+        let charIndex = 0;
+
+        lines.forEach((line, lineIndex) => {
+          for (let i = 0; i < line.length; i++) {
+            if (charIndex >= selectionStart && charIndex < selectionEnd) {
+              const charStyle =
+                styles[lineIndex] && styles[lineIndex][i]
+                  ? styles[lineIndex][i]
+                  : {};
+              if (charStyle.fontWeight === "bold") isBold = true;
+              if (charStyle.fontStyle === "italic") isItalic = true;
+              if (charStyle.underline) isUnderline = true;
+            }
+            charIndex++;
+          }
+          charIndex++; // Account for the newline character
+        });
+
+        setFontWeight(isBold ? "bold" : "normal");
+        setFontStyle(isItalic ? "italic" : "normal");
+        setTextDecoration(isUnderline ? "underline" : "");
+      }
     }
   };
 
@@ -187,6 +402,7 @@ const Text = ({ canvas }) => {
       const activeObject = canvas.getActiveObject();
       if (activeObject.type === "textbox") handleModified();
       setIsTextSelected(activeObject && activeObject.type === "textbox");
+      detectTextStyles();
     };
 
     const handleModified = () => {
@@ -210,7 +426,12 @@ const Text = ({ canvas }) => {
           fontSize: effectiveFontSize,
         });
         canvas.requestRenderAll();
+        detectTextStyles();
       }
+    };
+
+    const handleSelectionChanged = () => {
+      detectTextStyles();
     };
 
     canvas.on("selection:created", handleSelection);
@@ -218,15 +439,55 @@ const Text = ({ canvas }) => {
     canvas.on("selection:cleared", () => setIsTextSelected(false));
     canvas.on("object:modified", handleModified);
     canvas.on("text:changed", handleModified);
+    canvas.on("text:selection:changed", handleSelectionChanged);
 
     return () => {
       canvas.off("selection:created", handleSelection);
       canvas.off("selection:updated", handleSelection);
       canvas.off("selection:cleared", () => setIsTextSelected(false));
       canvas.off("object:modified", handleModified);
-      canvas.on("text:changed", handleModified);
+      canvas.off("text:changed", handleModified);
+      canvas.off("text:selection:changed", handleSelectionChanged);
     };
   }, [canvas]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey) {
+        switch (e.key) {
+          case "b":
+          case "B":
+            e.preventDefault();
+            const newWeight = fontWeight === "bold" ? "normal" : "bold";
+            setFontWeight(newWeight);
+            updateActiveText("fontWeight", newWeight);
+            break;
+          case "i":
+          case "I":
+            e.preventDefault();
+            const newStyle = fontStyle === "italic" ? "normal" : "italic";
+            setFontStyle(newStyle);
+            updateActiveText("fontStyle", newStyle);
+            break;
+          case "u":
+          case "U":
+            e.preventDefault();
+            const isUnderline = textDecoration === "underline";
+            setTextDecoration(isUnderline ? "" : "underline");
+            updateActiveText("underline", !isUnderline);
+            break;
+          default:
+            break;
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [fontWeight, fontStyle, textDecoration, canvas]);
 
   const addText = () => {
     if (canvas) {
@@ -238,11 +499,13 @@ const Text = ({ canvas }) => {
         fontStyle,
         underline: textDecoration === "underline",
         lineHeight,
+        letterSpacing,
         fontFamily,
         fill: textColor,
         editable: true,
         textAlign: "center",
         backgroundColor: hasBackground ? backgroundColor : null,
+        styles: {},
       });
       canvas.add(text);
       canvas.setActiveObject(text);
@@ -395,6 +658,21 @@ const Text = ({ canvas }) => {
               onChange={(e) => {
                 setFontSize(e.target.value);
                 updateActiveText("fontSize", parseInt(e.target.value, 10));
+              }}
+              className="ml-2 border border-gray-300 rounded px-2 py-1"
+            />
+          </label>
+
+          <label className="block mb-2">
+            Letter Spacing:
+            <input
+              type="number"
+              value={letterSpacing}
+              step={0.05}
+              onChange={(e) => {
+                const spacingValue = parseFloat(e.target.value);
+                setLetterSpacing(spacingValue);
+                updateActiveText("letterSpacing", spacingValue);
               }}
               className="ml-2 border border-gray-300 rounded px-2 py-1"
             />
