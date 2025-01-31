@@ -494,12 +494,12 @@ function App() {
 
           {/* Additional Tools */}
           <div className="flex flex-col justify-start gap-4 mt-8">
-            <UploadImageS3
+            {/* <UploadImageS3
               canvas={currentCanvas}
               canvasesRef={canvasesRef}
               activePage={activePage}
-            />
-            {activeObject && activeObject.type === "image" && (
+            /> */}
+            {/* {activeObject && activeObject.type === "image" && (
               <>
                 <ImageWidthHeight
                   canvas={currentCanvas}
@@ -508,7 +508,7 @@ function App() {
                 />
                 <ShapeImage canvas={currentCanvas} />
               </>
-            )}
+            )} */}
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>

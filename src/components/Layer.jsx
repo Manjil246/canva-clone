@@ -74,10 +74,6 @@ const Layer = ({ canvas }) => {
   };
 
   const addIdToObject = (obj) => {
-    // if (!obj.id) {
-    //   const timestamp = new Date().getTime();
-    //   obj.id = `${obj.type}-${timestamp}`;
-    // }
     if (!obj.id) {
       const timestamp = new Date().getTime();
       const randomComponent = Math.random().toString(36).substr(2, 5); // Add randomness
@@ -111,12 +107,18 @@ const Layer = ({ canvas }) => {
               obj.customType === "guideline"
             )
         )
-        .map((obj) => ({
-          id: obj.id,
-          zIndex: obj.zIndex,
-          type: obj.type,
-          opacity: obj.opacity,
-        }));
+        .map((obj) => {
+          return {
+            id: obj.id,
+            zIndex: obj.zIndex,
+            type: obj.type,
+            opacity: obj.opacity,
+            preview: obj.toDataURL({
+              format: "png",
+              scaleX: 0.4,
+            }),
+          };
+        });
       setLayers([...objects].reverse());
     }
   };
@@ -195,14 +197,20 @@ const Layer = ({ canvas }) => {
           {selectedLayer?.opacity === 0 ? "Show" : "Hide"}
         </button>
       </div>
-      <ul>
+      <ul className="transition-all duration-700 ease-in-out">
         {layers.map((layer) => (
           <li
             key={layer.id}
-            className={`${layer.id === selectedLayer?.id ? "bg-gray-200" : ""}`}
+            className={`p-2 rounded-lg transition-transform duration-700 ease-in-out ${
+              layer.id === selectedLayer?.id ? "bg-gray-400" : ""
+            }`}
             onClick={() => selectLayerInCanvas(layer.id)}
           >
-            {layer.type}({layer.zIndex})
+            <img
+              src={layer.preview}
+              alt={layer.type}
+              className="cover w-24 h-12 object-contain cursor-pointer"
+            />
           </li>
         ))}
       </ul>
