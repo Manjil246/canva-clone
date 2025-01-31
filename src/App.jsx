@@ -346,7 +346,7 @@ function App() {
       <div className="flex flex-col">
         {/* Top Toolbar */}
         <div className="flex flex-wrap justify-between p-2 bg-white shadow-md">
-          {/* <CopyPaste canvas={currentCanvas} /> */}
+          <CopyPaste canvas={currentCanvas} />
           <Shadow canvas={currentCanvas} />
           <div className="flex flex-col">
             <Border canvas={currentCanvas} />

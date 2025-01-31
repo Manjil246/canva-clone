@@ -209,7 +209,7 @@ const Layer = ({ canvas }) => {
             <img
               src={layer.preview}
               alt={layer.type}
-              className="cover w-24 h-12 object-contain cursor-pointer"
+              className="cover w-52 h-12 object-contain cursor-pointer"
             />
           </li>
         ))}
