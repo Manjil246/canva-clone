@@ -55,7 +55,7 @@ const Shadow = ({ canvas }) => {
 
     // Reset shadow state values
     setShadowColor("#000000");
-    setShadowBlur(10);
+    setShadowBlur(0);
     setShadowOffsetX(0);
     setShadowOffsetY(0);
   };

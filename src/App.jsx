@@ -21,6 +21,7 @@ import CopyPaste from "./components/CopyPaste";
 import BackgroundRemove from "./components/BackgroundRemove";
 import BackgroundColor from "./components/BackgroundColor";
 import ImageWidthHeight from "./components/ImageWidthHeight";
+import ShapeImage from "./components/ShapeImage";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -499,11 +500,14 @@ function App() {
               activePage={activePage}
             />
             {activeObject && activeObject.type === "image" && (
-              <ImageWidthHeight
-                canvas={currentCanvas}
-                canvasesRef={canvasesRef}
-                activePage={activePage}
-              />
+              <>
+                <ImageWidthHeight
+                  canvas={currentCanvas}
+                  canvasesRef={canvasesRef}
+                  activePage={activePage}
+                />
+                <ShapeImage canvas={currentCanvas} />
+              </>
             )}
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
