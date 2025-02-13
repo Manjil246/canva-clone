@@ -22,6 +22,7 @@ import BackgroundRemove from "./components/BackgroundRemove";
 import BackgroundColor from "./components/BackgroundColor";
 import ImageWidthHeight from "./components/ImageWidthHeight";
 import ShapeImage from "./components/ShapeImage";
+import CreateTemplate from "./components/CreateTemplate";
 
 function App() {
   const [currentCanvas, setCurrentCanvas] = useState(null);
@@ -36,6 +37,8 @@ function App() {
   const [isDragging, setIsDragging] = useState(false);
 
   const activeObject = currentCanvas?.getActiveObject();
+
+  const clipboardRef = useRef(null);
 
   const debounce = (fn, delay) => {
     let timer;
@@ -346,7 +349,7 @@ function App() {
       <div className="flex flex-col">
         {/* Top Toolbar */}
         <div className="flex flex-wrap justify-between p-2 bg-white shadow-md">
-          <CopyPaste canvas={currentCanvas} />
+          <CopyPaste canvas={currentCanvas} clipboardRef={clipboardRef} />
           <Shadow canvas={currentCanvas} />
           <div className="flex flex-col">
             <Border canvas={currentCanvas} />
@@ -494,21 +497,24 @@ function App() {
 
           {/* Additional Tools */}
           <div className="flex flex-col justify-start gap-4 mt-8">
-            {/* <UploadImageS3
+            <CreateTemplate onImportJSON={onImportJSON} />
+            <UploadImageS3
               canvas={currentCanvas}
               canvasesRef={canvasesRef}
               activePage={activePage}
-            /> */}
-            {/* {activeObject && activeObject.type === "image" && (
-              <>
-                <ImageWidthHeight
-                  canvas={currentCanvas}
-                  canvasesRef={canvasesRef}
-                  activePage={activePage}
-                />
-                <ShapeImage canvas={currentCanvas} />
-              </>
-            )} */}
+            />
+            {activeObject &&
+              (activeObject.type === "Image" ||
+                activeObject.type === "image") && (
+                <>
+                  <ImageWidthHeight
+                    canvas={currentCanvas}
+                    canvasesRef={canvasesRef}
+                    activePage={activePage}
+                  />
+                  <ShapeImage canvas={currentCanvas} />
+                </>
+              )}
             <Layer canvas={currentCanvas} />
             <ImageCorrectionSaturation canvas={currentCanvas} />
           </div>

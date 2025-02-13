@@ -11,6 +11,7 @@ const Image = ({ canvas }) => {
         if (items) {
           for (let i = 0; i < items.length; i++) {
             if (items[i].type.startsWith("image/")) {
+              event.preventDefault();
               const blob = items[i].getAsFile();
               const reader = new FileReader();
               reader.onload = (e) => addImageToCanvas(e.target.result);

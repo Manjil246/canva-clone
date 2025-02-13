@@ -33,43 +33,14 @@ const Layer = ({ canvas }) => {
     const object = objects.find((obj) => obj.id === selectedLayer.id);
 
     if (object) {
-      const currentIndex = objects.indexOf(object);
-      let newIndex = currentIndex;
-
-      if (direction === "up" && currentIndex < objects.length - 1) {
-        // Move the object one step up
-        newIndex = currentIndex + 1;
-      } else if (direction === "down" && currentIndex > 0) {
-        // Move the object one step down
-        newIndex = currentIndex - 1;
+      if (direction === "up") {
+        canvas.bringObjectForward(object);
+      } else if (direction === "down") {
+        canvas.sendObjectBackwards(object);
       }
 
-      if (newIndex !== currentIndex) {
-        // Swap the object with the new position
-        const temp = objects[currentIndex];
-        objects[currentIndex] = objects[newIndex];
-        objects[newIndex] = temp;
-
-        // Update zIndex for each object
-        objects.forEach((obj, index) => {
-          obj.zIndex = index; // Update zIndex to reflect new order
-        });
-
-        const backgroundColor = canvas.backgroundColor;
-        canvas.clear();
-        objects.forEach((obj) => {
-          canvas.add(obj);
-        });
-        canvas.backgroundColor = backgroundColor;
-        canvas.renderAll();
-
-        // Set the active object and re-render the canvas
-        canvas.setActiveObject(object);
-        canvas.renderAll();
-
-        // Update layers to reflect the changes
-        updateLayers();
-      }
+      canvas.renderAll();
+      updateLayers();
     }
   };
 
@@ -197,11 +168,11 @@ const Layer = ({ canvas }) => {
           {selectedLayer?.opacity === 0 ? "Show" : "Hide"}
         </button>
       </div>
-      <ul className="transition-all duration-700 ease-in-out">
+      <ul className="transition-all duration-300 ease-in-out overflow-y-auto h-96">
         {layers.map((layer) => (
           <li
             key={layer.id}
-            className={`p-2 rounded-lg transition-transform duration-700 ease-in-out ${
+            className={`p-2 rounded-lg transition-transform duration-300 ease-in-out ${
               layer.id === selectedLayer?.id ? "bg-gray-400" : ""
             }`}
             onClick={() => selectLayerInCanvas(layer.id)}
